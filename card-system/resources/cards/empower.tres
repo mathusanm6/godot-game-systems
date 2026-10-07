@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/data/card_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"empower"
+title = "Empower"
+description = "Increase attack power by +2 for the rest of combat."
+card_type = 2
+cost = 2
+attack = 2
+defense = 0
+frame_color = Color(0.85, 0.72, 0.25, 1)

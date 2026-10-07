@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://b5e6e03cuv0pq"]
+
+[ext_resource type="PackedScene" uid="uid://8qairt8r6gw1" path="res://features/card/Card.tscn" id="1_0f027"]
+[ext_resource type="Script" uid="uid://rb6fr1023hm4" path="res://core/manager/card_manager.gd" id="1_2c62f"]
+[ext_resource type="PackedScene" uid="uid://c1kn3e1csvc1x" path="res://features/card_slot/CardSlot.tscn" id="1_gyfs4"]
+[ext_resource type="Script" uid="uid://d0y5vh3p5jdv7" path="res://features/hand/card_hand.gd" id="2_hand"]
+[ext_resource type="Resource" path="res://resources/cards/strike.tres" id="3_strike"]
+[ext_resource type="Resource" path="res://resources/cards/defend.tres" id="4_defend"]
+[ext_resource type="Resource" path="res://resources/cards/empower.tres" id="5_empower"]
+[ext_resource type="PackedScene" uid="uid://c5q3y8e6w8r2k" path="res://features/deck/Deck.tscn" id="6_deck"]
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="9_7ycvg"]
+
+[node name="MainScene" type="Node2D" unique_id=1426277657]
+
+[node name="Background" type="ColorRect" parent="." unique_id=1122334455]
+offset_right = 1280.0
+offset_bottom = 800.0
+mouse_filter = 2
+color = Color(0.3451502, 0.39037558, 0.48054624, 1)
+
+[node name="CardManager" type="Node2D" parent="." unique_id=896085714]
+script = ExtResource("1_2c62f")
+
+[node name="CardSlots" type="Node2D" parent="CardManager" unique_id=142129863]
+
+[node name="CardSlot1" parent="CardManager/CardSlots" unique_id=1541146058 instance=ExtResource("1_gyfs4")]
+position = Vector2(439, 220)
+
+[node name="CardSlot2" parent="CardManager/CardSlots" unique_id=74465715 instance=ExtResource("1_gyfs4")]
+position = Vector2(639, 220)
+
+[node name="CardSlot3" parent="CardManager/CardSlots" unique_id=74465716 instance=ExtResource("1_gyfs4")]
+position = Vector2(839, 220)
+
+[node name="CardHand" type="Node2D" parent="CardManager" unique_id=569229546]
+script = ExtResource("2_hand")
+
+[node name="Card1" parent="CardManager/CardHand" unique_id=1894425825 instance=ExtResource("1_0f027")]
+position = Vector2(500, 668)
+rotation = -0.0959931
+card_data = ExtResource("3_strike")
+
+[node name="Card2" parent="CardManager/CardHand" unique_id=297684795 instance=ExtResource("1_0f027")]
+position = Vector2(640, 640)
+card_data = ExtResource("4_defend")
+
+[node name="Card3" parent="CardManager/CardHand" unique_id=297684796 instance=ExtResource("1_0f027")]
+position = Vector2(780, 668)
+rotation = 0.0959931
+card_data = ExtResource("5_empower")
+
+[node name="Deck" parent="CardManager" unique_id=123987456 instance=ExtResource("6_deck")]
+position = Vector2(150, 640)
+initial_cards = Array[ExtResource("9_7ycvg")]([ExtResource("3_strike"), ExtResource("4_defend"), ExtResource("5_empower"), ExtResource("3_strike"), ExtResource("4_defend"), ExtResource("5_empower"), ExtResource("3_strike")])

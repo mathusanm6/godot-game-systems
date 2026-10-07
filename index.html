@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Godot Game Systems Hub</title>
+  <link rel="icon" type="image/svg+xml" href="./card-system/index.icon.png">
+  <style>
+    :root {
+      --bg: #0f141c;
+      --card-bg: #1a2230;
+      --card-border: #2c3a50;
+      --accent: #478cbf;
+      --accent-hover: #5ba3d9;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --tag-bg: #212c3d;
+      --tag-border: #3b4e6b;
+      --success: #3fb950;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 4rem 2rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at 50% 0%, #1f2d42 0%, transparent 70%);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .badge-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: var(--accent);
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 30%, #a5c7eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .system-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--accent);
+    }
+
+    .card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .status-live {
+      color: var(--success);
+    }
+
+    .status-live::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .status-upcoming {
+      color: var(--text-muted);
+    }
+
+    .status-upcoming::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .system-card h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: #fff;
+    }
+
+    .system-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: #b0c0d8;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: scale(1.02);
+    }
+
+    .btn-disabled {
+      background: #252e3d;
+      color: #606d80;
+      border: 1px solid #334055;
+      cursor: not-allowed;
+    }
+
+    footer {
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge-header">Godot 4.7 Game Systems</div>
+    <h1>Game Systems Hub</h1>
+    <p class="subtitle">Modular, production-ready gameplay architecture components for Godot Engine playable directly in your browser.</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- Card System -->
+      <article class="system-card">
+        <div>
+          <div class="card-status status-live">Live & Playable</div>
+          <h2>Card System</h2>
+          <p>Deckbuilder system with curved hand card layout, tangent fan rotations, interactive draw pile, slot docking, card swapping, and unslotting.</p>
+          <div class="tags">
+            <span class="tag">Deckbuilder</span>
+            <span class="tag">Curved Hand</span>
+            <span class="tag">Card Slots</span>
+            <span class="tag">WebAssembly</span>
+          </div>
+        </div>
+        <a href="./card-system/" class="btn btn-primary">Play Card System &rarr;</a>
+      </article>
+
+      <!-- Inventory System (Upcoming) -->
+      <article class="system-card" style="opacity: 0.75;">
+        <div>
+          <div class="card-status status-upcoming">In Development</div>
+          <h2>Inventory System</h2>
+          <p>Grid-based and slot-based inventory architecture, equipment loadouts, item database, drag-and-drop management, and tooltips.</p>
+          <div class="tags">
+            <span class="tag">Inventory Grid</span>
+            <span class="tag">Equipment</span>
+            <span class="tag">Items</span>
+          </div>
+        </div>
+        <button class="btn btn-disabled" disabled>Coming Soon</button>
+      </article>
+
+      <!-- Dialogue System (Upcoming) -->
+      <article class="system-card" style="opacity: 0.75;">
+        <div>
+          <div class="card-status status-upcoming">Planned</div>
+          <h2>Dialogue & Quest System</h2>
+          <p>Branching dialogue graph, speaker portraits, event triggers, typewriting effects, and stateful quest tracker integration.</p>
+          <div class="tags">
+            <span class="tag">Dialogue Tree</span>
+            <span class="tag">Branching</span>
+            <span class="tag">Quests</span>
+          </div>
+        </div>
+        <button class="btn btn-disabled" disabled>Planned</button>
+      </article>
+    </div>
+  </main>
+
+  <footer>
+    <p>Powered by Godot 4.7 &bull; Source available on <a href="https://github.com/mathusanm6/godot-game-systems" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
+</body>
+</html>
