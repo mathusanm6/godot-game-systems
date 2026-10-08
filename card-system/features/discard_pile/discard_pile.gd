@@ -223,33 +223,39 @@ func _update_display() -> void:
 			stack_sprite_2.texture = card_back_texture
 
 
-## Immediately cancels active hover state if currently hovered.
+## Immediately cancels active hover visual animation if currently hovered.
 func cancel_hover() -> void:
 	if _is_hovered:
-		_on_mouse_exited()
+		_is_hovered = false
+		if not _is_highlighted:
+			_animate_scale(_base_scale)
 
 
 func _is_cursor_over_card() -> bool:
 	if is_inside_tree():
 		var managers := get_tree().get_nodes_in_group("managers")
 		for m in managers:
-			if m is CardManager and (m as CardManager).card_being_hovered:
-				return true
+			if m is CardManager:
+				if (m as CardManager).card_being_dragged != null:
+					return false
+				if (m as CardManager).card_being_hovered != null and not (m as CardManager).card_being_hovered.is_dragging:
+					return true
 		var hands := get_tree().get_nodes_in_group("card_hands")
 		for h in hands:
 			if h is CardHand:
 				var mouse_pos := get_global_mouse_position()
 				for c in (h as CardHand).cards:
-					if is_instance_valid(c) and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
+					if is_instance_valid(c) and not c.is_dragging and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
 						return true
 	return false
 
 
 func _on_mouse_entered() -> void:
+	# Always register overlap with CardManager for drag & drop resolution
+	discard_pile_entered.emit(self)
 	if _is_cursor_over_card():
 		return
 	_is_hovered = true
-	discard_pile_entered.emit(self)
 	if not _is_highlighted:
 		_animate_scale(_base_scale * hover_scale)
 

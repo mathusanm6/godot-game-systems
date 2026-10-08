@@ -534,6 +534,8 @@ func _resolve_hover() -> void:
 
 
 func _suppress_pile_hover() -> void:
+	if card_being_dragged != null:
+		return
 	if discard_pile and discard_pile.has_method("cancel_hover"):
 		discard_pile.cancel_hover()
 	if is_inside_tree():

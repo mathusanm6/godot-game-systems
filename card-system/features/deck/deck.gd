@@ -253,16 +253,17 @@ func _play_empty_shake() -> void:
 ## Immediately cancels active hover animation if currently hovered.
 func cancel_hover() -> void:
 	if _is_hovered:
-		_on_mouse_exited()
+		_is_hovered = false
+		_animate_scale(_base_scale)
 
 
 func _is_cursor_over_card() -> bool:
-	if card_manager and card_manager.card_being_hovered:
+	if card_manager and card_manager.card_being_hovered and not card_manager.card_being_hovered.is_dragging:
 		return true
-	if card_hand:
+	if card_hand and is_inside_tree():
 		var mouse_pos := get_global_mouse_position()
 		for c: Card in card_hand.cards:
-			if is_instance_valid(c) and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
+			if is_instance_valid(c) and not c.is_dragging and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
 				return true
 	return false
 
