@@ -1,0 +1,183 @@
+[gd_scene format=3 uid="uid://b0y1lkwmre7y8"]
+
+[ext_resource type="Script" path="res://features/ui/game_ui.gd" id="1_ui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0.08, 0.09, 0.14, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.33, 0.48, 0.75)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.22, 0.26, 0.38, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.46, 0.54, 0.74, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.32, 0.38, 0.54, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.75, 0.95, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.16, 0.19, 0.28, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.48, 0.65, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="GameUI" type="Control" unique_id=312276855]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_ui")
+
+[node name="HUDLayer" type="CanvasLayer" parent="." unique_id=1001]
+
+[node name="InfoPanel" type="PanelContainer" parent="HUDLayer" unique_id=1002]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 224.0
+offset_bottom = 140.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="HUDLayer/InfoPanel" unique_id=1003]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="TitleLabel" type="Label" parent="HUDLayer/InfoPanel/VBox" unique_id=1004]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.98, 1)
+theme_override_font_sizes/font_size = 13
+text = "CHESS MOVEMENT"
+
+[node name="HSeparator" type="HSeparator" parent="HUDLayer/InfoPanel/VBox" unique_id=1005]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SquareLabel" type="Label" parent="HUDLayer/InfoPanel/VBox" unique_id=1006]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_font_sizes/font_size = 18
+text = "Square: E4"
+
+[node name="CoordsLabel" type="Label" parent="HUDLayer/InfoPanel/VBox" unique_id=1007]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.88, 1)
+theme_override_font_sizes/font_size = 12
+text = "Grid: (4, 4)"
+
+[node name="StepsLabel" type="Label" parent="HUDLayer/InfoPanel/VBox" unique_id=1008]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Steps: 0"
+
+[node name="ControlsPanel" type="PanelContainer" parent="HUDLayer" unique_id=2001]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -224.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 196.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="HUDLayer/ControlsPanel" unique_id=2002]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="HUDLayer/ControlsPanel/VBox" unique_id=2003]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.98, 1)
+theme_override_font_sizes/font_size = 13
+text = "CONTROLS"
+
+[node name="HSeparator" type="HSeparator" parent="HUDLayer/ControlsPanel/VBox" unique_id=2004]
+layout_mode = 2
+
+[node name="CardinalLabel" type="Label" parent="HUDLayer/ControlsPanel/VBox" unique_id=2005]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "WASD / Arrows: 4-Way"
+
+[node name="DiagonalLabel" type="Label" parent="HUDLayer/ControlsPanel/VBox" unique_id=2006]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Q / E / Z / C: Diagonals"
+
+[node name="MouseLabel" type="Label" parent="HUDLayer/ControlsPanel/VBox" unique_id=2009]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Click / Drag: Move"
+
+[node name="ResetKeyLabel" type="Label" parent="HUDLayer/ControlsPanel/VBox" unique_id=2007]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "R Key: Reset Center"
+
+[node name="ResetButton" type="Button" parent="HUDLayer/ControlsPanel/VBox" unique_id=2008]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+text = "Reset King Position"

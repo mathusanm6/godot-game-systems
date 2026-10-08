@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://u5csj2kfedvn"]
+
+[ext_resource type="Script" uid="uid://b4ijrfynj17qe" path="res://main_scene.gd" id="1_gyfs4"]
+[ext_resource type="PackedScene" uid="uid://bungasbu538wo" path="res://features/board/chess_board.tscn" id="2_board"]
+[ext_resource type="Script" uid="uid://cmxerowhs3ufx" path="res://features/camera/camera_controller.gd" id="3_cam"]
+[ext_resource type="PackedScene" uid="uid://bm3ectnv63gfu" path="res://features/king/king.tscn" id="4_king"]
+[ext_resource type="PackedScene" uid="uid://b0y1lkwmre7y8" path="res://features/ui/game_ui.tscn" id="5_ui"]
+
+[node name="MainScene" type="Node2D" unique_id=295186465]
+script = ExtResource("1_gyfs4")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1756795265]
+unique_name_in_owner = true
+position = Vector2(640, 400)
+script = ExtResource("3_cam")
+
+[node name="ChessBoard" parent="." unique_id=991990150 instance=ExtResource("2_board")]
+unique_name_in_owner = true
+position = Vector2(640, 400)
+
+[node name="King" parent="ChessBoard" unique_id=452360977 instance=ExtResource("4_king")]
+unique_name_in_owner = true
+
+[node name="GameUI" parent="." unique_id=312276855 instance=ExtResource("5_ui")]
+unique_name_in_owner = true

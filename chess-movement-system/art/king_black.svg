@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g fill="#2b2d38" stroke="#141419" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cross Finial -->
+    <path d="M 120 23 
+             C 120 18, 136 18, 136 23 
+             L 136 34 
+             L 147 34 
+             C 152 34, 152 46, 147 46 
+             L 136 46 
+             L 136 57 
+             L 120 57 
+             L 120 46 
+             L 109 46 
+             C 104 46, 104 34, 109 34 
+             L 120 34 
+             Z" />
+
+    <!-- Crown Dome -->
+    <path d="M 112 57 
+             C 98 64, 93 74, 92 84 
+             L 164 84 
+             C 163 74, 158 64, 144 57 
+             Z" />
+
+    <!-- Upper Collar -->
+    <rect x="88" y="84" width="80" height="15" rx="7.5" />
+
+    <!-- Stem / Waist -->
+    <path d="M 98 99 
+             C 108 120, 106 138, 86 168 
+             L 170 168 
+             C 150 138, 148 120, 158 99 
+             Z" />
+
+    <!-- Mid Collar -->
+    <rect x="74" y="168" width="108" height="22" rx="11" />
+
+    <!-- Base Plinth -->
+    <rect x="58" y="193" width="140" height="26" rx="13" />
+  </g>
+</svg>

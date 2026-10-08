@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bungasbu538wo"]
+
+[ext_resource type="Script" path="res://features/board/chess_board.gd" id="1_5nm6w"]
+
+[node name="ChessBoard" type="Node2D" unique_id=991990150]
+script = ExtResource("1_5nm6w")
+
+[node name="ResizeAudio" type="AudioStreamPlayer2D" parent="." unique_id=1984271842]
+unique_name_in_owner = true
+bus = &"SFX"

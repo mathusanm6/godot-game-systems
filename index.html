@@ -170,6 +170,11 @@
                 gap: clamp(1.75rem, 5vw, 4.5rem);
                 align-items: start;
             }
+            .proto + .proto {
+                margin-top: clamp(3rem, 6vw, 5rem);
+                padding-top: clamp(3rem, 6vw, 5rem);
+                border-top: 1px solid var(--line);
+            }
 
             /* media viewer */
             .viewer {
@@ -471,6 +476,76 @@
                                 <a
                                     class="link"
                                     href="https://github.com/mathusanm6/godot-game-systems/tree/main/card-system"
+                                    target="_blank"
+                                    rel="noopener"
+                                    >View source</a
+                                >
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="proto" id="chess-movement-system">
+                        <div class="viewer" data-viewer>
+                            <div class="stage is-empty">
+                                <p class="stage-empty">
+                                    Screenshots and a recording of the chess
+                                    movement system will appear here.
+                                </p>
+                            </div>
+                            <div
+                                class="thumbs"
+                                role="group"
+                                aria-label="Choose a screenshot or video"
+                            ></div>
+
+                            <!-- Media for this prototype. Files that don't exist are skipped.
+                 Add or reorder entries to change what the viewer shows. -->
+                            <ul hidden>
+                                <li
+                                    data-kind="video"
+                                    data-src="./media/chess-movement-system/demo.mp4"
+                                    data-poster="./media/chess-movement-system/shot-1.png"
+                                    data-label="Gameplay video"
+                                ></li>
+                                <li
+                                    data-kind="image"
+                                    data-src="./media/chess-movement-system/shot-1.png"
+                                    data-label="Centered 7x7 board"
+                                ></li>
+                                <li
+                                    data-kind="image"
+                                    data-src="./media/chess-movement-system/shot-2.png"
+                                    data-label="Dynamic expansion"
+                                ></li>
+                                <li
+                                    data-kind="image"
+                                    data-src="./media/chess-movement-system/shot-3.png"
+                                    data-label="Full board framing"
+                                ></li>
+                            </ul>
+                        </div>
+
+                        <div class="proto-info">
+                            <h2>Chess movement system</h2>
+                            <p class="status">Playable in the browser</p>
+                            <p class="about">
+                                An expandable 8-way King grid navigation system built to godot-master architectural standards.
+                                Features procedural board expansion and shrink hysteresis, adaptive camera zoom framing maintaining Steam Deck 16:10 aspect ratio,
+                                algebraic chess notation, and tactile movement juice.
+                            </p>
+                            <ul class="features">
+                                <li>8-way King movement (cardinals & diagonals) via keyboard and point-and-click</li>
+                                <li>Procedural chessboard resizing (7x7 to 17x17) with smooth perimeter tile fade</li>
+                                <li>Dynamic camera zoom keeping top, bottom, and borders fully visible with 16:10 Steam Deck framing</li>
+                                <li>Elastic boundary bump recoil, landing dust particles, and algebraic chess coordinates</li>
+                            </ul>
+                            <div class="actions">
+                                <a class="btn" href="./chess-movement-system/"
+                                    >Play the chess system</a
+                                >
+                                <a
+                                    class="link"
+                                    href="https://github.com/mathusanm6/godot-game-systems/tree/main/chess-movement-system"
                                     target="_blank"
                                     rel="noopener"
                                     >View source</a

@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://bm3ectnv63gfu"]
+
+[ext_resource type="Texture2D" uid="uid://bpxwx4bltgpsd" path="res://art/shadow.svg" id="1_fn2xo"]
+[ext_resource type="Script" uid="uid://coad3b3xaw0g6" path="res://features/king/king.gd" id="1_gmgs4"]
+[ext_resource type="Texture2D" uid="uid://cshetawaxm1gs" path="res://art/king_black.svg" id="2_gmgs4"]
+[ext_resource type="Texture2D" uid="uid://ckw1xun31eavb" path="res://art/dust.svg" id="3_dust"]
+
+[node name="King" type="Node2D" unique_id=452360977]
+z_index = 2
+script = ExtResource("1_gmgs4")
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1548130494]
+unique_name_in_owner = true
+position = Vector2(0, 20)
+scale = Vector2(0.38, 0.18)
+texture = ExtResource("1_fn2xo")
+
+[node name="DustParticles" type="CPUParticles2D" parent="." unique_id=1711141480]
+unique_name_in_owner = true
+position = Vector2(0, 18)
+emitting = false
+amount = 14
+texture = ExtResource("3_dust")
+lifetime = 0.35
+one_shot = true
+explosiveness = 0.95
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 90)
+initial_velocity_min = 35.0
+initial_velocity_max = 75.0
+scale_amount_min = 0.15
+scale_amount_max = 0.35
+color = Color(1, 1, 1, 0.75)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1293503604]
+unique_name_in_owner = true
+position = Vector2(0, -6)
+scale = Vector2(0.27, 0.27)
+texture = ExtResource("2_gmgs4")
+
+[node name="AudioPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1849182391]
+unique_name_in_owner = true
+bus = &"SFX"

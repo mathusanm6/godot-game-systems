@@ -43,6 +43,7 @@ jobs:
       - name: Create export directory and setup hub
         run: |
           mkdir -v -p build/web/card-system
+          mkdir -v -p build/web/chess-movement-system
           cp index.html build/web/index.html
           cp -r assets media build/web/
 
@@ -51,6 +52,8 @@ jobs:
           EXPORT_DIR="$(readlink -f build)"
           cd card-system
           godot --headless --verbose --export-release "Web" "$EXPORT_DIR/web/card-system/index.html"
+          cd ../chess-movement-system
+          godot --headless --verbose --export-release "Web" "$EXPORT_DIR/web/chess-movement-system/index.html"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
