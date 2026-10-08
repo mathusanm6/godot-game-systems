@@ -18,6 +18,7 @@ func _init() -> void:
 	success = _test_discard_pile_contracts() and success
 	success = _test_discard_via_drag_and_drop() and success
 	success = _test_card_audio_system() and success
+	success = _test_card_hover_jitter_prevention() and success
 
 	if success:
 		print("✅ ALL TESTS PASSED SUCCESSFULLY!")
@@ -996,5 +997,129 @@ func _test_card_audio_system() -> bool:
 		return false
 
 	print("  -> CardAudio system, voice pool, SFX triggers, and background music validated.")
+	return true
+
+
+func _test_card_hover_jitter_prevention() -> bool:
+	print("[Test] Validating Card hover jitter prevention, hysteresis, and pile overlap stability...")
+
+	var card_scene: PackedScene = load("res://features/card/Card.tscn")
+	var deck_scene: PackedScene = load("res://features/deck/Deck.tscn")
+	var discard_scene: PackedScene = load("res://features/discard_pile/DiscardPile.tscn")
+
+	var manager := CardManager.new()
+	var hand := CardHand.new()
+	hand.hand_center = Vector2(640, 640)
+	hand.max_card_spacing = 140.0
+	hand.max_hand_width = 720.0
+	hand.arc_height = 28.0
+	hand.card_angle_step_deg = 5.5
+	hand.max_angle_spread_deg = 36.0
+
+	var deck: CardDeck = deck_scene.instantiate() as CardDeck
+	deck.position = Vector2(150, 640)
+
+	var discard: DiscardPile = discard_scene.instantiate() as DiscardPile
+	discard.position = Vector2(1130, 640)
+
+	manager.card_hand = hand
+	manager.discard_pile = discard
+	manager.add_child(deck)
+	manager.add_child(discard)
+	manager.add_child(hand)
+	manager.register_discard_pile(discard)
+
+	# Populate hand with 8 cards
+	var spades_a: CardData = load("res://resources/cards/spades_A.tres") as CardData
+	for i in range(8):
+		var c: Card = card_scene.instantiate() as Card
+		c.card_data = spades_a
+		manager.register_card(c)
+		hand.add_card(c, -1, false)
+
+	deck.card_manager = manager
+	deck.card_hand = hand
+
+	var card0: Card = hand.cards[0]
+	var card7: Card = hand.cards[7]
+
+	# 1. Verify Card 0 overlap with Deck geometry
+	var border_pts := [Vector2(180, 600), Vector2(190, 620), Vector2(200, 640)]
+	for pt in border_pts:
+		if not card0.contains_global_point(pt, false):
+			push_error("Card 0 should contain resting border pt: %s" % pt)
+			manager.free()
+			return false
+
+	# Hover card 0
+	manager._on_card_hovered(card0)
+	manager._resolve_hover()
+
+	if manager.card_being_hovered != card0 or not card0.is_hovered:
+		push_error("Card 0 must be active hovered card")
+		manager.free()
+		return false
+
+	# While card 0 is hovered (and straightened), all border points must remain inside without unhovering
+	for pt in border_pts:
+		if not card0.contains_global_point(pt, true):
+			push_error("Card 0 must continue containing border pt while hovered: %s" % pt)
+			manager.free()
+			return false
+
+	# 2. Verify Deck suppresses hover when cursor is over card
+	if deck._is_hovered:
+		push_error("Deck must not be hovered when card is hovered on top of it")
+		manager.free()
+		return false
+
+	deck._on_mouse_entered()
+	if deck._is_hovered:
+		push_error("Deck must reject mouse_entered when cursor is over card")
+		manager.free()
+		return false
+
+	# 3. Verify Card 7 overlap with DiscardPile
+	var discard_border_pts := [Vector2(1080, 600), Vector2(1070, 620), Vector2(1060, 640)]
+	for pt in discard_border_pts:
+		if not card7.contains_global_point(pt, false):
+			push_error("Card 7 should contain resting border pt: %s" % pt)
+			manager.free()
+			return false
+
+	manager._on_card_hovered(card7)
+	manager._resolve_hover()
+
+	if manager.card_being_hovered != card7 or not card7.is_hovered:
+		push_error("Card 7 must be active hovered card")
+		manager.free()
+		return false
+
+	for pt in discard_border_pts:
+		if not card7.contains_global_point(pt, true):
+			push_error("Card 7 must continue containing border pt while hovered: %s" % pt)
+			manager.free()
+			return false
+
+	if discard._is_hovered:
+		push_error("Discard pile must not be hovered when card is hovered on top of it")
+		manager.free()
+		return false
+
+	# 4. Clean unhover when moving outside
+	var outside_pt := Vector2(50, 50)
+	if card7.contains_global_point(outside_pt, true):
+		push_error("Card 7 must return false for outside point")
+		manager.free()
+		return false
+
+	manager._on_card_unhovered(card7)
+	if manager.card_being_hovered != null:
+		push_error("card_being_hovered must clear when outside")
+		manager.free()
+		return false
+
+	manager.free()
+	print("  -> Card hover jitter prevention, hysteresis, and pile overlap stability validated.")
 	return true
 

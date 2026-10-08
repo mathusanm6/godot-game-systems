@@ -500,10 +500,15 @@ func _on_card_hovered(card: Card) -> void:
 
 
 func _on_card_unhovered(card: Card) -> void:
-	_hovered_candidates.erase(card)
-
 	if card == card_being_dragged:
+		_hovered_candidates.erase(card)
 		return
+
+	# Secondary safety: if mouse is still physically over the card or its resting bounds, ignore unhover chatter
+	if is_inside_tree() and card.has_method("contains_global_point") and card.contains_global_point(get_global_mouse_position(), true):
+		return
+
+	_hovered_candidates.erase(card)
 
 	if card == card_being_hovered:
 		card_being_hovered.set_hovered(false)
@@ -524,13 +529,28 @@ func _resolve_hover() -> void:
 		card_being_hovered = top_card
 		card_being_hovered.set_hovered(true)
 
+	if card_being_hovered:
+		_suppress_pile_hover()
+
+
+func _suppress_pile_hover() -> void:
+	if discard_pile and discard_pile.has_method("cancel_hover"):
+		discard_pile.cancel_hover()
+	if is_inside_tree():
+		var decks := get_tree().get_nodes_in_group("card_decks")
+		for d in decks:
+			if d.has_method("cancel_hover"):
+				d.cancel_hover()
+
 
 func _find_top_card(candidates: Array[Card]) -> Card:
 	var top_card: Card = candidates[0]
 	for card: Card in candidates:
+		var top_val: int = top_card.resting_z_index if top_card.resting_z_index != 0 else top_card.z_index
+		var card_val: int = card.resting_z_index if card.resting_z_index != 0 else card.z_index
 		if (
-			card.z_index > top_card.z_index
-			or (card.z_index == top_card.z_index and card.get_index() > top_card.get_index())
+			card_val > top_val
+			or (card_val == top_val and card.get_index() > top_card.get_index())
 		):
 			top_card = card
 	return top_card

@@ -99,10 +99,12 @@ var _target_rotation: float = 0.0
 var _is_hover_flag: bool = false
 var _base_card_image_pos: Vector2 = Vector2.ZERO
 var _base_card_image_scale: Vector2 = Vector2.ONE
+var _base_collision_size: Vector2 = Vector2(162.5, 227.5)
 var _hover_tween: Tween
 var _return_tween: Tween
 
 @onready var card_image: Sprite2D = %CardImage
+@onready var collision_shape_2d: CollisionShape2D = get_node_or_null("CollisionShape2D")
 
 
 func _ready() -> void:
@@ -113,6 +115,11 @@ func _ready() -> void:
 	_last_pos_x = global_position.x
 	_base_card_image_pos = card_image.position
 	_base_card_image_scale = card_image.scale
+
+	if collision_shape_2d and collision_shape_2d.shape:
+		collision_shape_2d.shape = collision_shape_2d.shape.duplicate()
+		if collision_shape_2d.shape is RectangleShape2D:
+			_base_collision_size = (collision_shape_2d.shape as RectangleShape2D).size
 
 	if card_image.material:
 		card_image.material = card_image.material.duplicate()
@@ -125,6 +132,11 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
+	# Periodic boundary verification while hovered to cleanly unhover if pointer departed
+	if is_hovered and not is_dragging and not is_card_on_card_slot and is_inside_tree():
+		if not contains_global_point(get_global_mouse_position(), true):
+			_mouse_exit()
+
 	if is_dragging:
 		var velocity_x: float = global_position.x - _last_pos_x
 		_last_pos_x = global_position.x
@@ -246,6 +258,8 @@ func set_hovered(on: bool) -> void:
 	if not is_dragging and current_state != State.RETURNING:
 		current_state = State.HOVERED if on else (State.SLOTTED if card_slot else State.IDLE)
 
+	_update_collision_shape_for_hover(on)
+
 	if not is_inside_tree() or not card_image:
 		return
 
@@ -281,6 +295,56 @@ func set_hovered(on: bool) -> void:
 		)
 
 	z_index = 100 if on else resting_z_index
+
+
+func _update_collision_shape_for_hover(on: bool) -> void:
+	if not collision_shape_2d or not (collision_shape_2d.shape is RectangleShape2D):
+		return
+	var rect_shape := collision_shape_2d.shape as RectangleShape2D
+	if on:
+		var rot_swing_x: float = absf(sin(hand_rotation)) * (_base_collision_size.y * 0.5)
+		var extra_w: float = maxf(rot_swing_x * 2.0 + 20.0, 48.0)
+		rect_shape.size = Vector2(
+			_base_collision_size.x * hover_scale + extra_w,
+			_base_collision_size.y * hover_scale + hover_lift + 16.0,
+		)
+		collision_shape_2d.position = Vector2(0.0, -hover_lift * 0.5)
+	else:
+		rect_shape.size = _base_collision_size
+		collision_shape_2d.position = Vector2.ZERO
+
+
+## Returns true if the global point is within the card's active interaction area.
+## If [param include_hover_margin] is true, checks resting hand transform and visual bounds
+## with hysteresis margin to prevent unhover chatter.
+func contains_global_point(point: Vector2, include_hover_margin: bool = false) -> bool:
+	var half_size: Vector2 = _base_collision_size * 0.5
+	var margin: float = 24.0 if include_hover_margin else 0.0
+	var check_half: Vector2 = half_size + Vector2(margin, margin)
+
+	# 1. Current local transform (card Area2D local space)
+	var local_pt: Vector2 = to_local(point)
+	if absf(local_pt.x) <= check_half.x and absf(local_pt.y) <= check_half.y:
+		return true
+
+	# 2. Resting hand transform if in hand
+	if card_hand and not is_card_on_card_slot:
+		var rest_trans := Transform2D(hand_rotation, hand_position)
+		if get_parent() is CanvasItem:
+			rest_trans = (get_parent() as CanvasItem).global_transform * rest_trans
+		var rest_pt: Vector2 = rest_trans.affine_inverse() * point
+		if absf(rest_pt.x) <= check_half.x and absf(rest_pt.y) <= check_half.y:
+			return true
+
+	# 3. Lifted/scaled visual sprite bounds
+	if card_image:
+		var img_pt: Vector2 = card_image.to_local(point)
+		var img_half: Vector2 = (half_size / card_image.scale) if card_image.scale.x > 0.0 else half_size
+		img_half += Vector2(margin, margin)
+		if absf(img_pt.x) <= img_half.x and absf(img_pt.y) <= img_half.y:
+			return true
+
+	return false
 
 
 ## Flips the card between face-up and face-down.
@@ -330,4 +394,8 @@ func _mouse_enter() -> void:
 
 
 func _mouse_exit() -> void:
+	if is_hovered and not is_dragging and is_inside_tree():
+		var mouse_pos := get_global_mouse_position()
+		if contains_global_point(mouse_pos, true):
+			return
 	card_unhovered.emit(self)

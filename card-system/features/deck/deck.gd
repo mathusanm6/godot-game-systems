@@ -78,6 +78,10 @@ func _ready() -> void:
 	_update_deck_textures()
 	_update_display()
 
+	# Ensure all overlay controls ignore mouse picking
+	for child in find_children("*", "Control", true, false):
+		(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 
@@ -246,22 +250,45 @@ func _play_empty_shake() -> void:
 	_pulse_tween.tween_property(self, "position:x", original_pos.x, 0.04)
 
 
-func _on_mouse_entered() -> void:
-	_is_hovered = true
-	if _hover_tween:
-		_hover_tween.kill()
+## Immediately cancels active hover animation if currently hovered.
+func cancel_hover() -> void:
+	if _is_hovered:
+		_on_mouse_exited()
 
-	_hover_tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_hover_tween.tween_property(self, "scale", _base_scale * hover_scale, hover_duration)
+
+func _is_cursor_over_card() -> bool:
+	if card_manager and card_manager.card_being_hovered:
+		return true
+	if card_hand:
+		var mouse_pos := get_global_mouse_position()
+		for c: Card in card_hand.cards:
+			if is_instance_valid(c) and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
+				return true
+	return false
+
+
+func _on_mouse_entered() -> void:
+	if _is_cursor_over_card():
+		return
+	_is_hovered = true
+	_animate_scale(_base_scale * hover_scale)
 
 
 func _on_mouse_exited() -> void:
 	_is_hovered = false
+	_animate_scale(_base_scale)
+
+
+func _animate_scale(target: Vector2) -> void:
 	if _hover_tween:
 		_hover_tween.kill()
 
-	_hover_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	_hover_tween.tween_property(self, "scale", _base_scale, hover_duration)
+	_hover_tween = create_tween().set_parallel().set_trans(Tween.TRANS_BACK if _is_hovered else Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_hover_tween.tween_property(self, "scale", target, hover_duration)
+	var col_shape: Node2D = get_node_or_null("CollisionShape2D") as Node2D
+	if col_shape and target.x > 0.0 and target.y > 0.0:
+		var inv_scale := Vector2(_base_scale.x / target.x, _base_scale.y / target.y)
+		_hover_tween.tween_property(col_shape, "scale", inv_scale, hover_duration)
 
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:

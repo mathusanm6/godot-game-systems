@@ -70,6 +70,10 @@ func _ready() -> void:
 	_base_scale = scale
 	_base_modulate = modulate
 
+	# Ensure all overlay controls ignore mouse picking
+	for child in find_children("*", "Control", true, false):
+		(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 
@@ -175,6 +179,10 @@ func set_highlight(on: bool) -> void:
 	var target_sc: Vector2 = _base_scale * (hover_scale if on or _is_hovered else 1.0)
 	_hover_tween.tween_property(self, "modulate", target_mod, hover_duration)
 	_hover_tween.tween_property(self, "scale", target_sc, hover_duration)
+	var col_shape: Node2D = get_node_or_null("CollisionShape2D") as Node2D
+	if col_shape and target_sc.x > 0.0 and target_sc.y > 0.0:
+		var inv_scale := Vector2(_base_scale.x / target_sc.x, _base_scale.y / target_sc.y)
+		_hover_tween.tween_property(col_shape, "scale", inv_scale, hover_duration)
 
 
 ## Updates visual elements based on current pile state.
@@ -215,7 +223,31 @@ func _update_display() -> void:
 			stack_sprite_2.texture = card_back_texture
 
 
+## Immediately cancels active hover state if currently hovered.
+func cancel_hover() -> void:
+	if _is_hovered:
+		_on_mouse_exited()
+
+
+func _is_cursor_over_card() -> bool:
+	if is_inside_tree():
+		var managers := get_tree().get_nodes_in_group("managers")
+		for m in managers:
+			if m is CardManager and (m as CardManager).card_being_hovered:
+				return true
+		var hands := get_tree().get_nodes_in_group("card_hands")
+		for h in hands:
+			if h is CardHand:
+				var mouse_pos := get_global_mouse_position()
+				for c in (h as CardHand).cards:
+					if is_instance_valid(c) and c.has_method("contains_global_point") and c.contains_global_point(mouse_pos, true):
+						return true
+	return false
+
+
 func _on_mouse_entered() -> void:
+	if _is_cursor_over_card():
+		return
 	_is_hovered = true
 	discard_pile_entered.emit(self)
 	if not _is_highlighted:
@@ -232,5 +264,9 @@ func _on_mouse_exited() -> void:
 func _animate_scale(target: Vector2) -> void:
 	if _hover_tween:
 		_hover_tween.kill()
-	_hover_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_hover_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_hover_tween.tween_property(self, "scale", target, hover_duration)
+	var col_shape: Node2D = get_node_or_null("CollisionShape2D") as Node2D
+	if col_shape and target.x > 0.0 and target.y > 0.0:
+		var inv_scale := Vector2(_base_scale.x / target.x, _base_scale.y / target.y)
+		_hover_tween.tween_property(col_shape, "scale", inv_scale, hover_duration)
