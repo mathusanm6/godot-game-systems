@@ -44,6 +44,7 @@ jobs:
         run: |
           mkdir -v -p build/web/card-system
           cp index.html build/web/index.html
+          cp -r assets media build/web/
 
       - name: Export Web
         run: |
