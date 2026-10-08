@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://bfyt1esn6e8lm"]
+
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://d3d4h8tei5rim" path="res://art/decks/classic/clubs_9.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"clubs_9"
+title = "9 of Clubs"
+suit = 1
+rank = 9
+value = 9
+artwork = ExtResource("2_art")

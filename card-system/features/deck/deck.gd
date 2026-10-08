@@ -24,6 +24,14 @@ signal deck_count_changed(count: int)
 ## Reference to CardManager node for registering drawn cards.
 @export var card_manager: CardManager = null
 
+@export_group("Card Back Art")
+## Card back texture used for the deck sprites (e.g. lattice_blue or lattice_red).
+@export var card_back_texture: Texture2D = preload("res://art/decks/backs/hd/lattice_blue.png"):
+	set(value):
+		card_back_texture = value
+		if is_node_ready():
+			_update_deck_textures()
+
 @export_group("Visual Feedback")
 ## Hover scale multiplier.
 @export_range(1.0, 1.3, 0.02) var hover_scale: float = 1.06
@@ -75,6 +83,7 @@ func _ready() -> void:
 	if shuffle_on_ready and not draw_pile.is_empty():
 		draw_pile.shuffle()
 
+	_update_deck_textures()
 	_update_display()
 
 	mouse_entered.connect(_on_mouse_entered)
@@ -150,6 +159,17 @@ func reset_deck(new_cards: Array[CardData], shuffle: bool = true) -> void:
 	_update_display()
 
 
+func _update_deck_textures() -> void:
+	if not card_back_texture:
+		return
+	if deck_sprite:
+		deck_sprite.texture = card_back_texture
+	if stack_sprite_1:
+		stack_sprite_1.texture = card_back_texture
+	if stack_sprite_2:
+		stack_sprite_2.texture = card_back_texture
+
+
 func _update_display() -> void:
 	if count_label:
 		count_label.text = str(draw_pile.size())
@@ -171,8 +191,14 @@ func _play_draw_pulse() -> void:
 	_pulse_tween = create_tween()
 	var target_boost: Vector2 = _base_scale * (hover_scale * 1.08 if _is_hovered else 1.08)
 	var rest_scale: Vector2 = _base_scale * (hover_scale if _is_hovered else 1.0)
-	_pulse_tween.tween_property(self, "scale", target_boost, 0.07).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_pulse_tween.tween_property(self, "scale", rest_scale, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_pulse_tween \
+			.tween_property(self, "scale", target_boost, 0.07) \
+			.set_trans(Tween.TRANS_QUAD) \
+			.set_ease(Tween.EASE_OUT)
+	_pulse_tween \
+			.tween_property(self, "scale", rest_scale, 0.12) \
+			.set_trans(Tween.TRANS_BACK) \
+			.set_ease(Tween.EASE_OUT)
 
 
 func _play_empty_shake() -> void:

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://8qairt8r6gw1"]
 
 [ext_resource type="Script" uid="uid://otnsix826qpt" path="res://features/card/card.gd" id="1_tgmmg"]
-[ext_resource type="Texture2D" uid="uid://beoof0gq7vyo8" path="res://icon.svg" id="1_yiag5"]
+[ext_resource type="Texture2D" uid="uid://dvym4e042gpf4" path="res://art/decks/classic/spades_A.png" id="1_yiag5"]
 [ext_resource type="Shader" uid="uid://bugpt7c560evd" path="res://features/card/card_tilt.gdshader" id="2_4dx8l"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qf083"]
@@ -9,28 +9,10 @@ resource_local_to_scene = true
 shader = ExtResource("2_4dx8l")
 shader_parameter/tilt_deg = 0.0
 shader_parameter/cam_dist = 1.4
-shader_parameter/margin = 0.0
-
-[sub_resource type="LabelSettings" id="LabelSettings_cost"]
-font_size = 15
-font_color = Color(1, 0.92, 0.25, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 13
-font_color = Color(1, 1, 1, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_desc"]
-font_size = 11
-font_color = Color(0.95, 0.95, 0.95, 1)
-outline_size = 2
-outline_color = Color(0, 0, 0, 1)
+shader_parameter/margin = 0.3
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_87s2n"]
-size = Vector2(156, 232)
+size = Vector2(162.5, 227.5)
 
 [node name="Card" type="Area2D" unique_id=24970753]
 script = ExtResource("1_tgmmg")
@@ -38,79 +20,8 @@ script = ExtResource("1_tgmmg")
 [node name="CardImage" type="Sprite2D" parent="." unique_id=1622280409]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_qf083")
-scale = Vector2(1.21875, 1.8125)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("1_yiag5")
-
-[node name="UIOverlay" type="Control" parent="." unique_id=987123456]
-unique_name_in_owner = true
-mouse_filter = 2
-offset_left = -78.0
-offset_top = -116.0
-offset_right = 78.0
-offset_bottom = 116.0
-pivot_offset = Vector2(78, 116)
-
-[node name="CostBadge" type="ColorRect" parent="UIOverlay" unique_id=987123457]
-mouse_filter = 2
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 32.0
-offset_bottom = 32.0
-color = Color(0.1, 0.1, 0.15, 0.9)
-
-[node name="CostLabel" type="Label" parent="UIOverlay/CostBadge" unique_id=987123458]
-unique_name_in_owner = true
-mouse_filter = 2
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "1"
-label_settings = SubResource("LabelSettings_cost")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TitleLabel" type="Label" parent="UIOverlay" unique_id=987123459]
-unique_name_in_owner = true
-mouse_filter = 2
-offset_left = 36.0
-offset_top = 8.0
-offset_right = 148.0
-offset_bottom = 32.0
-text = "Card Title"
-label_settings = SubResource("LabelSettings_title")
-horizontal_alignment = 1
-vertical_alignment = 1
-text_overrun_behavior = 3
-
-[node name="DescPanel" type="ColorRect" parent="UIOverlay" unique_id=987123460]
-mouse_filter = 2
-offset_left = 8.0
-offset_top = 156.0
-offset_right = 148.0
-offset_bottom = 224.0
-color = Color(0.06, 0.06, 0.1, 0.8)
-
-[node name="DescriptionLabel" type="Label" parent="UIOverlay/DescPanel" unique_id=987123461]
-unique_name_in_owner = true
-mouse_filter = 2
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = -4.0
-offset_bottom = -4.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "Card description text goes here."
-label_settings = SubResource("LabelSettings_desc")
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1486786496]
 shape = SubResource("RectangleShape2D_87s2n")

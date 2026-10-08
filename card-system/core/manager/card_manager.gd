@@ -30,9 +30,11 @@ var _clicked_candidates: Array[Card] = []
 var _hovered_candidates: Array[Card] = []
 var _last_highlighted_slot: CardSlot = null
 
+var _is_mouse_down: bool = false
+
 
 func _ready() -> void:
-	add_to_group("card_managers")
+	add_to_group("managers")
 	child_entered_tree.connect(_on_child_entered_tree)
 	child_exiting_tree.connect(_on_child_exiting_tree)
 
@@ -60,16 +62,16 @@ func _ready() -> void:
 	update_slot_and_card_order()
 
 
+func _process(_delta: float) -> void:
+	if (
+		card_being_dragged and not _is_mouse_down
+		and not Input.is_mouse_button_pressed(MouseButton.MOUSE_BUTTON_LEFT)
+	):
+		_handle_card_drop(card_being_dragged)
+
+
 func _exit_tree() -> void:
 	_clear_slot_highlight()
-
-
-var _is_mouse_down: bool = false
-
-
-func _process(_delta: float) -> void:
-	if card_being_dragged and not _is_mouse_down and not Input.is_mouse_button_pressed(MouseButton.MOUSE_BUTTON_LEFT):
-		_handle_card_drop(card_being_dragged)
 
 
 func _input(event: InputEvent) -> void:
@@ -95,7 +97,6 @@ func _input(event: InputEvent) -> void:
 # -----------------------------------------------------------------------------
 # Card and Slot Registration
 # -----------------------------------------------------------------------------
-
 ## Subscribes to events emitted from a card instance.
 func register_card(card: Card) -> void:
 	if not card.card_clicked.is_connected(_on_card_clicked):
@@ -132,6 +133,36 @@ func unregister_card_slot(card_slot: CardSlot) -> void:
 		card_slot.card_slot_exited.disconnect(_on_card_slot_exited)
 
 
+# -----------------------------------------------------------------------------
+# Z-Index and Stacking Order
+# -----------------------------------------------------------------------------
+## Enforces consistent, non-overlapping z-indices across all slots and docked cards.
+func update_slot_and_card_order() -> void:
+	if not is_inside_tree():
+		return
+
+	var slots: Array[Node] = get_tree().get_nodes_in_group("card_slots")
+	slots.sort_custom(
+		func(a: Node, b: Node) -> bool:
+			if a.get_parent() == b.get_parent():
+				return a.get_index() < b.get_index()
+			return (a as CanvasItem).z_index < (b as CanvasItem).z_index,
+	)
+
+	for i: int in range(slots.size()):
+		var slot: CardSlot = slots[i] as CardSlot
+		if not slot:
+			continue
+
+		slot.z_index = i * 2
+		if slot.card_in_slot:
+			slot.card_in_slot.resting_z_index = i * 2 + 1
+			if not slot.card_in_slot.is_dragging:
+				slot.card_in_slot.z_index = slot.card_in_slot.resting_z_index
+			if slot.card_in_slot.get_parent():
+				slot.card_in_slot.get_parent().move_child(slot.card_in_slot, -1)
+
+
 func _on_child_entered_tree(node: Node) -> void:
 	if node is Card:
 		register_card(node)
@@ -162,7 +193,6 @@ func _on_child_exiting_tree(node: Node) -> void:
 # -----------------------------------------------------------------------------
 # Drag & Drop Resolution
 # -----------------------------------------------------------------------------
-
 func _process_card_drag_motion() -> void:
 	var target_pos: Vector2 = get_global_mouse_position() - card_being_dragged.drag_offset
 	var vp_rect: Rect2 = get_viewport_rect()
@@ -284,7 +314,6 @@ func _clear_hover_state_for(card: Card) -> void:
 # -----------------------------------------------------------------------------
 # Input & Overlap Candidate Arbitrage
 # -----------------------------------------------------------------------------
-
 func _on_card_clicked(card: Card) -> void:
 	_is_mouse_down = true
 	_clicked_candidates.append(card)
@@ -372,33 +401,3 @@ func _on_card_slot_exited(card_slot: CardSlot) -> void:
 	_overlapping_slots.erase(card_slot)
 	if _last_highlighted_slot == card_slot:
 		_clear_slot_highlight()
-
-
-# -----------------------------------------------------------------------------
-# Z-Index and Stacking Order
-# -----------------------------------------------------------------------------
-
-## Enforces consistent, non-overlapping z-indices across all slots and docked cards.
-func update_slot_and_card_order() -> void:
-	if not is_inside_tree():
-		return
-
-	var slots: Array[Node] = get_tree().get_nodes_in_group("card_slots")
-	slots.sort_custom(func(a: Node, b: Node) -> bool:
-		if a.get_parent() == b.get_parent():
-			return a.get_index() < b.get_index()
-		return (a as CanvasItem).z_index < (b as CanvasItem).z_index
-	)
-
-	for i: int in range(slots.size()):
-		var slot: CardSlot = slots[i] as CardSlot
-		if not slot:
-			continue
-
-		slot.z_index = i * 2
-		if slot.card_in_slot:
-			slot.card_in_slot.resting_z_index = i * 2 + 1
-			if not slot.card_in_slot.is_dragging:
-				slot.card_in_slot.z_index = slot.card_in_slot.resting_z_index
-			if slot.card_in_slot.get_parent():
-				slot.card_in_slot.get_parent().move_child(slot.card_in_slot, -1)

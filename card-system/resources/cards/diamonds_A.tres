@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://du3r37jr4fmeb"]
+
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://lo0e0bw100p4" path="res://art/decks/classic/diamonds_A.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"diamonds_A"
+title = "Ace of Diamonds"
+suit = 2
+rank = 14
+value = 11
+artwork = ExtResource("2_art")

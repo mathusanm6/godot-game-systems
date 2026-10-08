@@ -22,42 +22,65 @@ func _init() -> void:
 
 
 func _test_card_data_resources() -> bool:
-	print("[Test] Validating CardData Resources...")
+	print("[Test] Validating Classic CardData Resources...")
 
-	var strike: CardData = load("res://resources/cards/strike.tres") as CardData
-	if not strike:
-		push_error("Failed to load strike.tres as CardData")
+	var spades_a: CardData = load("res://resources/cards/spades_A.tres") as CardData
+	if not spades_a:
+		push_error("Failed to load spades_A.tres as CardData")
 		return false
 	if (
-		strike.title != "Strike" or strike.cost != 1 or strike.attack != 6
-		or strike.card_type != CardData.CardType.ATTACK
+		spades_a.title != "Ace of Spades" or spades_a.suit != CardData.Suit.SPADES
+		or spades_a.rank != CardData.Rank.ACE or spades_a.value != 11
+		or not spades_a.artwork
 	):
-		push_error("Strike CardData properties mismatch: %s" % strike)
+		push_error("Spades A CardData properties mismatch: %s" % spades_a)
 		return false
 
-	var defend: CardData = load("res://resources/cards/defend.tres") as CardData
-	if not defend:
-		push_error("Failed to load defend.tres as CardData")
+	var hearts_k: CardData = load("res://resources/cards/hearts_K.tres") as CardData
+	if not hearts_k:
+		push_error("Failed to load hearts_K.tres as CardData")
 		return false
 	if (
-		defend.title != "Defend" or defend.cost != 1 or defend.defense != 5
-		or defend.card_type != CardData.CardType.SKILL
+		hearts_k.title != "King of Hearts" or hearts_k.suit != CardData.Suit.HEARTS
+		or hearts_k.rank != CardData.Rank.KING or hearts_k.value != 10
+		or not hearts_k.artwork
 	):
-		push_error("Defend CardData properties mismatch: %s" % defend)
+		push_error("Hearts K CardData properties mismatch: %s" % hearts_k)
 		return false
 
-	var empower: CardData = load("res://resources/cards/empower.tres") as CardData
-	if not empower:
-		push_error("Failed to load empower.tres as CardData")
+	var diamonds_q: CardData = load("res://resources/cards/diamonds_Q.tres") as CardData
+	if not diamonds_q:
+		push_error("Failed to load diamonds_Q.tres as CardData")
 		return false
 	if (
-		empower.title != "Empower" or empower.cost != 2
-		or empower.card_type != CardData.CardType.POWER
+		diamonds_q.title != "Queen of Diamonds" or diamonds_q.suit != CardData.Suit.DIAMONDS
+		or diamonds_q.rank != CardData.Rank.QUEEN or diamonds_q.value != 10
+		or not diamonds_q.artwork
 	):
-		push_error("Empower CardData properties mismatch: %s" % empower)
+		push_error("Diamonds Q CardData properties mismatch: %s" % diamonds_q)
 		return false
 
-	print("  -> CardData resources validated.")
+	var clubs_j: CardData = load("res://resources/cards/clubs_J.tres") as CardData
+	if not clubs_j:
+		push_error("Failed to load clubs_J.tres as CardData")
+		return false
+	if (
+		clubs_j.title != "Jack of Clubs" or clubs_j.suit != CardData.Suit.CLUBS
+		or clubs_j.rank != CardData.Rank.JACK or clubs_j.value != 10
+		or not clubs_j.artwork
+	):
+		push_error("Clubs J CardData properties mismatch: %s" % clubs_j)
+		return false
+
+	var joker_red: CardData = load("res://resources/cards/joker_red.tres") as CardData
+	if not joker_red:
+		push_error("Failed to load joker_red.tres as CardData")
+		return false
+	if joker_red.rank != CardData.Rank.JOKER or not joker_red.artwork:
+		push_error("Red Joker CardData properties mismatch: %s" % joker_red)
+		return false
+
+	print("  -> Classic CardData resources validated.")
 	return true
 
 
@@ -255,10 +278,10 @@ func _test_card_deck() -> bool:
 
 	var deck_script: Script = load("res://features/deck/deck.gd")
 	var deck: Node = deck_script.new()
-	var strike: CardData = load("res://resources/cards/strike.tres") as CardData
-	var defend: CardData = load("res://resources/cards/defend.tres") as CardData
+	var spades_a: CardData = load("res://resources/cards/spades_A.tres") as CardData
+	var hearts_k: CardData = load("res://resources/cards/hearts_K.tres") as CardData
 
-	var cards_list: Array[CardData] = [strike, defend]
+	var cards_list: Array[CardData] = [spades_a, hearts_k]
 	deck.initial_cards = cards_list
 	deck.shuffle_on_ready = false
 
@@ -288,7 +311,7 @@ func _test_card_deck() -> bool:
 		push_error("Drawing first card failed")
 		deck.free()
 		return false
-	if drawn_signals.is_empty() or drawn_signals[0].data != defend:
+	if drawn_signals.is_empty() or drawn_signals[0].data != hearts_k:
 		push_error("Drawn card signal did not transmit correct card data")
 		c1.free()
 		deck.free()
@@ -318,7 +341,7 @@ func _test_card_deck() -> bool:
 		return false
 
 	# Add card back to deck
-	deck.add_card_to_deck(strike)
+	deck.add_card_to_deck(spades_a)
 	if deck.remaining_count != 1 or deck.is_empty:
 		push_error("Adding card back to deck failed")
 		c1.free()

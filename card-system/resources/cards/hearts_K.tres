@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://bjjx2tpdrmhau"]
+
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://buyu0j5kxsier" path="res://art/decks/classic/hearts_K.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"hearts_K"
+title = "King of Hearts"
+suit = 3
+rank = 13
+value = 10
+artwork = ExtResource("2_art")

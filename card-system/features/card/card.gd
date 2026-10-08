@@ -23,16 +23,31 @@ enum State {
 }
 
 @export_group("Card Data")
-## Data resource defining identity, cost, and gameplay attributes.
+## Data resource defining identity and visual artwork.
 @export var card_data: CardData:
 	set(value):
 		card_data = value
 		if is_node_ready():
 			_update_card_display()
 
+@export_group("Card Orientation & Back")
+## Whether the card is face-down (showing card back).
+@export var is_face_down: bool = false:
+	set(value):
+		is_face_down = value
+		if is_node_ready():
+			_update_card_display()
+
+## Card back texture (e.g. lattice_blue or lattice_red).
+@export var card_back_texture: Texture2D = preload("res://art/decks/backs/hd/lattice_blue.png"):
+	set(value):
+		card_back_texture = value
+		if is_node_ready():
+			_update_card_display()
+
 @export_group("Motion & Tilt")
 ## Maximum dynamic tilt angle in degrees caused by mouse movement velocity.
-@export_range(5.0, 45.0, 1.0) var max_tilt_deg: float = 18.0
+@export_range(5.0, 45.0, 1.0) var max_tilt_deg: float = 25.0
 ## Sensitivity factor mapping horizontal drag velocity to tilt rotation.
 @export_range(0.01, 0.2, 0.005) var tilt_responsiveness: float = 0.05
 ## Exponential smoothing speed for tilt settling.
@@ -40,7 +55,7 @@ enum State {
 
 @export_group("Hover Settings")
 ## Perspective shader tilt angle applied while hovered (0.0 keeps 2D UI perfectly aligned).
-@export_range(0.0, 30.0, 1.0) var hover_tilt_deg: float = 0.0
+@export_range(0.0, 30.0, 1.0) var hover_tilt_deg: float = 10.0
 ## Upward vertical displacement when hovered.
 @export_range(0.0, 60.0, 2.0) var hover_lift: float = 24.0
 ## Uniform scale multiplier when hovered.
@@ -88,10 +103,6 @@ var _hover_tween: Tween
 var _return_tween: Tween
 
 @onready var card_image: Sprite2D = %CardImage
-@onready var title_label: Label = get_node_or_null("%TitleLabel")
-@onready var cost_label: Label = get_node_or_null("%CostLabel")
-@onready var description_label: Label = get_node_or_null("%DescriptionLabel")
-@onready var ui_overlay: Control = get_node_or_null("%UIOverlay")
 
 
 func _ready() -> void:
@@ -123,7 +134,7 @@ func _process(delta: float) -> void:
 		_target_rotation = clampf(
 			velocity_x * tilt_responsiveness * tilt_dir,
 			-max_tilt_rad,
-			max_tilt_rad
+			max_tilt_rad,
 		)
 	else:
 		_target_rotation = 0.0
@@ -132,7 +143,7 @@ func _process(delta: float) -> void:
 	card_image.rotation = lerp_angle(
 		card_image.rotation,
 		_target_rotation,
-		1.0 - exp(-tilt_recovery_speed * delta)
+		1.0 - exp(-tilt_recovery_speed * delta),
 	)
 
 	var is_lifted: bool = _is_hover_flag or is_dragging
@@ -146,13 +157,6 @@ func _process(delta: float) -> void:
 		drag_pivot = Vector2.ZERO
 		if not _hover_tween or not _hover_tween.is_running():
 			card_image.position = hover_target
-
-	if ui_overlay:
-		var half_size: Vector2 = ui_overlay.size / 2.0
-		ui_overlay.position = card_image.position - half_size
-		ui_overlay.rotation = card_image.rotation
-		if _base_card_image_scale.x > 0.0 and _base_card_image_scale.y > 0.0:
-			ui_overlay.scale = card_image.scale / _base_card_image_scale
 
 
 ## Initiates dragging interaction.
@@ -181,7 +185,11 @@ func stop_drag() -> void:
 
 
 ## Smoothly tweens card to target position and rotation (e.g. back to hand or table).
-func return_to_position(target_pos: Vector2, target_rot: float = 0.0, duration: float = 0.28) -> void:
+func return_to_position(
+	target_pos: Vector2,
+	target_rot: float = 0.0,
+	duration: float = 0.28,
+) -> void:
 	if _return_tween:
 		_return_tween.kill()
 
@@ -189,14 +197,20 @@ func return_to_position(target_pos: Vector2, target_rot: float = 0.0, duration: 
 	current_state = State.RETURNING
 	z_index = 100
 
-	_return_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_return_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(
+		Tween.EASE_OUT
+	)
 	_return_tween.tween_property(self, "position", target_pos, duration)
 	_return_tween.tween_property(self, "rotation", target_rot, duration)
 	_return_tween.chain().tween_callback(_on_return_completed)
 
 
 ## Smoothly docks card into a slot position.
-func snap_to_slot(target_slot: CardSlot, target_pos: Vector2 = Vector2.INF, duration: float = 0.2) -> void:
+func snap_to_slot(
+	target_slot: CardSlot,
+	target_pos: Vector2 = Vector2.INF,
+	duration: float = 0.2,
+) -> void:
 	if _return_tween:
 		_return_tween.kill()
 
@@ -213,11 +227,14 @@ func snap_to_slot(target_slot: CardSlot, target_pos: Vector2 = Vector2.INF, dura
 		else:
 			final_pos = position
 
-	_return_tween = create_tween().set_parallel().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_return_tween = create_tween().set_parallel().set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
 	_return_tween.tween_property(self, "position", final_pos, duration)
 	_return_tween.tween_property(self, "rotation", 0.0, duration)
-	_return_tween.chain().tween_callback(func() -> void:
-		z_index = resting_z_index
+	_return_tween.chain().tween_callback(
+		func() -> void:
+			z_index = resting_z_index,
 	)
 
 
@@ -239,7 +256,9 @@ func set_hovered(on: bool) -> void:
 	else:
 		_hover_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-	var target_pos: Vector2 = _base_card_image_pos + (Vector2(0, -hover_lift) if on else Vector2.ZERO)
+	var target_pos: Vector2 = _base_card_image_pos + (
+		Vector2(0, -hover_lift) if on else Vector2.ZERO
+	)
 	var target_scale: Vector2 = _base_card_image_scale * (hover_scale if on else 1.0)
 	var target_tilt: float = hover_tilt_deg if on else 0.0
 
@@ -256,35 +275,31 @@ func set_hovered(on: bool) -> void:
 			card_image.material,
 			"shader_parameter/tilt_deg",
 			target_tilt,
-			hover_duration
+			hover_duration,
 		)
 
 	z_index = 100 if on else resting_z_index
 
 
-## Updates presentation labels and styling from CardData.
+## Flips the card between face-up and face-down.
+func flip(face_down: bool = not is_face_down) -> void:
+	is_face_down = face_down
+
+
+## Updates presentation styling from CardData.
 func _update_card_display() -> void:
-	if not is_inside_tree():
+	if not is_inside_tree() or not card_image:
 		return
 
-	if card_data:
-		if title_label:
-			title_label.text = card_data.title
-		if cost_label:
-			cost_label.text = str(card_data.cost)
-		if description_label:
-			description_label.text = card_data.description
-		if card_data.artwork and card_image:
-			card_image.texture = card_data.artwork
-		if card_data.frame_color != Color.WHITE:
-			card_image.modulate = card_data.frame_color
-	else:
-		if title_label:
-			title_label.text = name
-		if cost_label:
-			cost_label.text = "1"
-		if description_label:
-			description_label.text = ""
+	if is_face_down:
+		if card_back_texture:
+			card_image.texture = card_back_texture
+			card_image.modulate = Color.WHITE
+		return
+
+	if card_data and card_data.artwork:
+		card_image.texture = card_data.artwork
+		card_image.modulate = Color.WHITE
 
 
 func _kill_tweens() -> void:

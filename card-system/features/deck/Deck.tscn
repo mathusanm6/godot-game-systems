@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c5q3y8e6w8r2k"]
 
 [ext_resource type="Script" path="res://features/deck/deck.gd" id="1_deck_script"]
-[ext_resource type="Texture2D" uid="uid://beoof0gq7vyo8" path="res://icon.svg" id="2_deck_tex"]
+[ext_resource type="Texture2D" uid="uid://bxfwgs0jw7bfv" path="res://art/decks/backs/hd/lattice_blue.png" id="2_deck_tex"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_count"]
 font_size = 18
@@ -22,7 +22,7 @@ outline_size = 2
 outline_color = Color(0, 0, 0, 0.8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_deck"]
-size = Vector2(156, 232)
+size = Vector2(162.5, 227.5)
 
 [node name="Deck" type="Area2D"]
 script = ExtResource("1_deck_script")
@@ -30,29 +30,28 @@ script = ExtResource("1_deck_script")
 [node name="StackSprite2" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(6, -6)
-scale = Vector2(1.21875, 1.8125)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("2_deck_tex")
-modulate = Color(0.12, 0.14, 0.2, 0.8)
+modulate = Color(0.7, 0.7, 0.78, 0.9)
 
 [node name="StackSprite1" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(3, -3)
-scale = Vector2(1.21875, 1.8125)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("2_deck_tex")
-modulate = Color(0.18, 0.22, 0.3, 0.9)
+modulate = Color(0.85, 0.85, 0.9, 0.95)
 
 [node name="DeckSprite" type="Sprite2D" parent="."]
 unique_name_in_owner = true
-scale = Vector2(1.21875, 1.8125)
+scale = Vector2(0.65, 0.65)
 texture = ExtResource("2_deck_tex")
-modulate = Color(0.25, 0.32, 0.45, 1)
 
 [node name="DeckOverlay" type="Control" parent="."]
 mouse_filter = 2
-offset_left = -78.0
-offset_top = -116.0
-offset_right = 78.0
-offset_bottom = 116.0
+offset_left = -81.0
+offset_top = -114.0
+offset_right = 81.0
+offset_bottom = 114.0
 
 [node name="TitleLabel" type="Label" parent="DeckOverlay"]
 layout_mode = 1
@@ -74,9 +73,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -22.0
-offset_top = 10.0
+offset_top = -22.0
 offset_right = 22.0
-offset_bottom = 54.0
+offset_bottom = 22.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

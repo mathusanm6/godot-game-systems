@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://djpua61rp5u7f"]
+
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://salbae7npn07" path="res://art/decks/classic/joker_black.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"joker_black"
+title = "Black Joker"
+rank = 15
+artwork = ExtResource("2_art")

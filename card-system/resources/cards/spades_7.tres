@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://core/data/card_data.gd" id="1_data"]
+[ext_resource type="Texture2D" uid="uid://duilxvism66kf" path="res://art/decks/classic/spades_7.png" id="2_art"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"spades_7"
+title = "7 of Spades"
+suit = 4
+rank = 7
+value = 7
+artwork = ExtResource("2_art")

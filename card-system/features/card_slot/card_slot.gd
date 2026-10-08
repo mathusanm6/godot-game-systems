@@ -96,8 +96,14 @@ func _play_dock_pulse() -> void:
 		_feedback_tween.kill()
 
 	_feedback_tween = create_tween()
-	_feedback_tween.tween_property(self, "scale", _base_scale * 1.08, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_feedback_tween.tween_property(self, "scale", _base_scale, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_feedback_tween \
+			.tween_property(self, "scale", _base_scale * 1.08, 0.08) \
+			.set_trans(Tween.TRANS_QUAD) \
+			.set_ease(Tween.EASE_OUT)
+	_feedback_tween \
+			.tween_property(self, "scale", _base_scale, 0.12) \
+			.set_trans(Tween.TRANS_BACK) \
+			.set_ease(Tween.EASE_OUT)
 
 
 func _on_mouse_entered() -> void:

@@ -1,59 +1,76 @@
 class_name CardData
 extends Resource
 
-## Enum representing the strategic category of the card.
-enum CardType {
-	ATTACK,
-	SKILL,
-	POWER,
+## Enum representing classic card suits.
+enum Suit {
+	NONE,
+	CLUBS,
+	DIAMONDS,
+	HEARTS,
+	SPADES,
+}
+
+## Enum representing classic card ranks.
+enum Rank {
+	NONE,
+	TWO = 2,
+	THREE = 3,
+	FOUR = 4,
+	FIVE = 5,
+	SIX = 6,
+	SEVEN = 7,
+	EIGHT = 8,
+	NINE = 9,
+	TEN = 10,
+	JACK = 11,
+	QUEEN = 12,
+	KING = 13,
+	ACE = 14,
+	JOKER = 15,
 }
 
 @export_group("Identity")
 ## Unique identifier for card lookup and serialization.
 @export var id: StringName = &""
-## Display title shown on the card banner.
+## Display title shown in inspector or tooltips.
 @export var title: String = "Untitled Card"
-## Flavor or gameplay effect description.
-@export_multiline var description: String = ""
-## Strategic classification.
-@export var card_type: CardType = CardType.ATTACK
+## Classic card suit.
+@export var suit: Suit = Suit.NONE
+## Classic card rank.
+@export var rank: Rank = Rank.NONE
 
-@export_group("Stats")
-## Energy / mana cost required to play.
-@export_range(0, 10, 1) var cost: int = 1
-## Base offensive power or damage value.
-@export_range(0, 99, 1) var attack: int = 0
-## Base defensive block or shield value.
-@export_range(0, 99, 1) var defense: int = 0
+@export_group("Gameplay")
+## Numeric value for gameplay rules (e.g. blackjack, poker, war).
+@export var value: int = 0
 
 @export_group("Visuals")
-## Artwork displayed in the center illustration window.
+## Artwork displayed on the card face.
 @export var artwork: Texture2D = null
-## Accent tint applied to card frame/border.
-@export var frame_color: Color = Color(0.85, 0.85, 0.85, 1.0)
 
 
-## Parameterless constructor for safe Inspector instantiation.
+## Constructor for programmatic and Inspector instantiation.
 func _init(
 	p_id: StringName = &"",
 	p_title: String = "Untitled Card",
-	p_cost: int = 1,
-	p_card_type: CardType = CardType.ATTACK
+	p_artwork: Texture2D = null,
+	p_suit: Suit = Suit.NONE,
+	p_rank: Rank = Rank.NONE,
+	p_value: int = 0,
 ) -> void:
 	id = p_id
 	title = p_title
-	cost = p_cost
-	card_type = p_card_type
-
-
-## Updates dynamic stats and emits changed signal for reactive UI updates.
-func update_stats(new_attack: int, new_defense: int) -> void:
-	if attack != new_attack or defense != new_defense:
-		attack = new_attack
-		defense = new_defense
-		emit_changed()
+	artwork = p_artwork
+	suit = p_suit
+	rank = p_rank
+	value = p_value
 
 
 ## Returns a concise debug representation.
 func _to_string() -> String:
-	return "[CardData:%s '%s' Cost:%d Type:%s]" % [id, title, cost, CardType.keys()[card_type]]
+	return "[CardData:%s '%s' Suit:%s Rank:%s Value:%d]" % [
+		id,
+		title,
+		Suit.keys()[suit] if suit in range(Suit.size()) else str(suit),
+		Rank.keys()[rank] if rank in range(Rank.size()) else str(rank),
+		value,
+	]

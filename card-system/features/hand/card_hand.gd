@@ -139,10 +139,10 @@ func get_card_count() -> int:
 ## Calculates target transform (position, rotation, z_index) for a card at index.
 func calculate_card_transform(index: int, total_cards: int) -> Dictionary:
 	if total_cards <= 0:
-		return {"position": hand_center, "rotation": 0.0, "z_index": base_z_index}
+		return { "position": hand_center, "rotation": 0.0, "z_index": base_z_index }
 
 	if total_cards == 1:
-		return {"position": hand_center, "rotation": 0.0, "z_index": base_z_index}
+		return { "position": hand_center, "rotation": 0.0, "z_index": base_z_index }
 
 	var u: float = float(index) - (float(total_cards - 1) / 2.0)
 	var half_span: float = float(total_cards - 1) / 2.0
@@ -161,17 +161,16 @@ func calculate_card_transform(index: int, total_cards: int) -> Dictionary:
 
 	var card_z: int = base_z_index + index
 
-	return {
-		"position": Vector2(pos_x, pos_y),
-		"rotation": rot,
-		"z_index": card_z,
-	}
+	return { "position": Vector2(pos_x, pos_y), "rotation": rot, "z_index": card_z }
 
 
 ## Re-calculates and applies curved hand layout across all cards in hand.
 func reorganize_hand(animate: bool = true) -> void:
 	# Purge any invalid/freed instances
-	cards = cards.filter(func(c: Card) -> bool: return is_instance_valid(c))
+	cards = cards.filter(
+		func(c: Card) -> bool:
+			return is_instance_valid(c),
+	)
 	var total: int = cards.size()
 
 	for i: int in range(total):
@@ -189,7 +188,11 @@ func reorganize_hand(animate: bool = true) -> void:
 
 			if should_tween:
 				if not card.is_hovered:
-					card.return_to_position(card.hand_position, card.hand_rotation, transition_duration)
+					card.return_to_position(
+						card.hand_position,
+						card.hand_rotation,
+						transition_duration,
+					)
 			else:
 				card.position = card.hand_position
 				if not card.is_hovered:

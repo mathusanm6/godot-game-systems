@@ -1,14 +1,32 @@
 [gd_scene format=3 uid="uid://b5e6e03cuv0pq"]
 
-[ext_resource type="PackedScene" uid="uid://8qairt8r6gw1" path="res://features/card/Card.tscn" id="1_0f027"]
-[ext_resource type="Script" uid="uid://rb6fr1023hm4" path="res://core/manager/card_manager.gd" id="1_2c62f"]
-[ext_resource type="PackedScene" uid="uid://c1kn3e1csvc1x" path="res://features/card_slot/CardSlot.tscn" id="1_gyfs4"]
-[ext_resource type="Script" uid="uid://d0y5vh3p5jdv7" path="res://features/hand/card_hand.gd" id="2_hand"]
-[ext_resource type="Resource" path="res://resources/cards/strike.tres" id="3_strike"]
-[ext_resource type="Resource" path="res://resources/cards/defend.tres" id="4_defend"]
-[ext_resource type="Resource" path="res://resources/cards/empower.tres" id="5_empower"]
-[ext_resource type="PackedScene" uid="uid://c5q3y8e6w8r2k" path="res://features/deck/Deck.tscn" id="6_deck"]
-[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="9_7ycvg"]
+[ext_resource type="PackedScene" uid="uid://8qairt8r6gw1" path="res://features/card/Card.tscn" id="1_card_scn"]
+[ext_resource type="Script" uid="uid://rb6fr1023hm4" path="res://core/manager/card_manager.gd" id="2_card_mgr"]
+[ext_resource type="PackedScene" uid="uid://c1kn3e1csvc1x" path="res://features/card_slot/CardSlot.tscn" id="3_slot_scn"]
+[ext_resource type="Script" uid="uid://d0y5vh3p5jdv7" path="res://features/hand/card_hand.gd" id="4_hand_script"]
+[ext_resource type="PackedScene" uid="uid://c5q3y8e6w8r2k" path="res://features/deck/Deck.tscn" id="5_deck_scn"]
+[ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="6_card_data_script"]
+[ext_resource type="Resource" uid="uid://bfyt1esn6e8lm" path="res://resources/cards/clubs_9.tres" id="res_clubs_9"]
+[ext_resource type="Resource" uid="uid://c86ujn2ufnpuy" path="res://resources/cards/clubs_A.tres" id="res_clubs_A"]
+[ext_resource type="Resource" uid="uid://dkpa2vnogqb2r" path="res://resources/cards/clubs_J.tres" id="res_clubs_J"]
+[ext_resource type="Resource" uid="uid://c5hcmlsfhks6l" path="res://resources/cards/clubs_Q.tres" id="res_clubs_Q"]
+[ext_resource type="Resource" uid="uid://huuo15aset3y" path="res://resources/cards/diamonds_7.tres" id="res_diamonds_7"]
+[ext_resource type="Resource" uid="uid://urghpymakcvc" path="res://resources/cards/diamonds_10.tres" id="res_diamonds_10"]
+[ext_resource type="Resource" uid="uid://du3r37jr4fmeb" path="res://resources/cards/diamonds_A.tres" id="res_diamonds_A"]
+[ext_resource type="Resource" uid="uid://dp35sagdnnq70" path="res://resources/cards/diamonds_K.tres" id="res_diamonds_K"]
+[ext_resource type="Resource" uid="uid://cwcw6yvgcg3pm" path="res://resources/cards/diamonds_Q.tres" id="res_diamonds_Q"]
+[ext_resource type="Resource" uid="uid://dmjvvayiwjmhg" path="res://resources/cards/hearts_7.tres" id="res_hearts_7"]
+[ext_resource type="Resource" uid="uid://d1r33pi8o02mn" path="res://resources/cards/hearts_10.tres" id="res_hearts_10"]
+[ext_resource type="Resource" uid="uid://dggcl0j2mqcu" path="res://resources/cards/hearts_A.tres" id="res_hearts_A"]
+[ext_resource type="Resource" uid="uid://dsf5wmhhy6pwh" path="res://resources/cards/hearts_J.tres" id="res_hearts_J"]
+[ext_resource type="Resource" uid="uid://bjjx2tpdrmhau" path="res://resources/cards/hearts_K.tres" id="res_hearts_K"]
+[ext_resource type="Resource" uid="uid://djpua61rp5u7f" path="res://resources/cards/joker_black.tres" id="res_joker_black"]
+[ext_resource type="Resource" uid="uid://cbwduu6cfeo38" path="res://resources/cards/joker_red.tres" id="res_joker_red"]
+[ext_resource type="Resource" uid="uid://doaivsbbchijc" path="res://resources/cards/spades_8.tres" id="res_spades_8"]
+[ext_resource type="Resource" uid="uid://pbn270ttdu2x" path="res://resources/cards/spades_A.tres" id="res_spades_A"]
+[ext_resource type="Resource" uid="uid://b538i57ra0ygm" path="res://resources/cards/spades_J.tres" id="res_spades_J"]
+[ext_resource type="Resource" uid="uid://ij68fs8xcut6" path="res://resources/cards/spades_K.tres" id="res_spades_K"]
+[ext_resource type="Resource" uid="uid://d0crwhov31gb6" path="res://resources/cards/spades_Q.tres" id="res_spades_Q"]
 
 [node name="MainScene" type="Node2D" unique_id=1426277657]
 
@@ -16,39 +34,39 @@
 offset_right = 1280.0
 offset_bottom = 800.0
 mouse_filter = 2
-color = Color(0.3451502, 0.39037558, 0.48054624, 1)
+color = Color(0.16, 0.32, 0.24, 1)
 
 [node name="CardManager" type="Node2D" parent="." unique_id=896085714]
-script = ExtResource("1_2c62f")
+script = ExtResource("2_card_mgr")
 
 [node name="CardSlots" type="Node2D" parent="CardManager" unique_id=142129863]
 
-[node name="CardSlot1" parent="CardManager/CardSlots" unique_id=1541146058 instance=ExtResource("1_gyfs4")]
+[node name="CardSlot1" parent="CardManager/CardSlots" unique_id=1541146058 instance=ExtResource("3_slot_scn")]
 position = Vector2(439, 220)
 
-[node name="CardSlot2" parent="CardManager/CardSlots" unique_id=74465715 instance=ExtResource("1_gyfs4")]
+[node name="CardSlot2" parent="CardManager/CardSlots" unique_id=74465715 instance=ExtResource("3_slot_scn")]
 position = Vector2(639, 220)
 
-[node name="CardSlot3" parent="CardManager/CardSlots" unique_id=74465716 instance=ExtResource("1_gyfs4")]
+[node name="CardSlot3" parent="CardManager/CardSlots" unique_id=74465716 instance=ExtResource("3_slot_scn")]
 position = Vector2(839, 220)
 
 [node name="CardHand" type="Node2D" parent="CardManager" unique_id=569229546]
-script = ExtResource("2_hand")
+script = ExtResource("4_hand_script")
 
-[node name="Card1" parent="CardManager/CardHand" unique_id=1894425825 instance=ExtResource("1_0f027")]
+[node name="Card1" parent="CardManager/CardHand" unique_id=1894425825 instance=ExtResource("1_card_scn")]
 position = Vector2(500, 668)
 rotation = -0.0959931
-card_data = ExtResource("3_strike")
+card_data = ExtResource("res_spades_A")
 
-[node name="Card2" parent="CardManager/CardHand" unique_id=297684795 instance=ExtResource("1_0f027")]
+[node name="Card2" parent="CardManager/CardHand" unique_id=297684795 instance=ExtResource("1_card_scn")]
 position = Vector2(640, 640)
-card_data = ExtResource("4_defend")
+card_data = ExtResource("res_hearts_K")
 
-[node name="Card3" parent="CardManager/CardHand" unique_id=297684796 instance=ExtResource("1_0f027")]
+[node name="Card3" parent="CardManager/CardHand" unique_id=297684796 instance=ExtResource("1_card_scn")]
 position = Vector2(780, 668)
 rotation = 0.0959931
-card_data = ExtResource("5_empower")
+card_data = ExtResource("res_diamonds_Q")
 
-[node name="Deck" parent="CardManager" unique_id=123987456 instance=ExtResource("6_deck")]
+[node name="Deck" parent="CardManager" unique_id=123987456 instance=ExtResource("5_deck_scn")]
 position = Vector2(150, 640)
-initial_cards = Array[ExtResource("9_7ycvg")]([ExtResource("3_strike"), ExtResource("4_defend"), ExtResource("5_empower"), ExtResource("3_strike"), ExtResource("4_defend"), ExtResource("5_empower"), ExtResource("3_strike")])
+initial_cards = Array[ExtResource("6_card_data_script")]([ExtResource("res_clubs_J"), ExtResource("res_hearts_A"), ExtResource("res_diamonds_10"), ExtResource("res_spades_K"), ExtResource("res_clubs_A"), ExtResource("res_hearts_10"), ExtResource("res_spades_J"), ExtResource("res_diamonds_K"), ExtResource("res_clubs_Q"), ExtResource("res_hearts_7"), ExtResource("res_spades_8"), ExtResource("res_diamonds_7"), ExtResource("res_clubs_9"), ExtResource("res_hearts_J"), ExtResource("res_spades_Q"), ExtResource("res_diamonds_A"), ExtResource("res_joker_red"), ExtResource("res_joker_black")])
