@@ -405,8 +405,10 @@ func _return_card_to_origin(card: Card) -> void:
 			if card_hand.has_card(card):
 				card_hand.move_card(card, insert_idx, false)
 				card_hand.reorganize_hand(true)
+				CardAudio.place()
 			else:
 				card_hand.add_card(card, insert_idx, true)
+				CardAudio.place()
 		else:
 			# Return into assigned slot (either hand is full or no hand exists)
 			source_slot.assign_card(card)
@@ -421,6 +423,7 @@ func _return_card_to_origin(card: Card) -> void:
 			if not card_hand.has_card(card):
 				if not card_hand.is_full:
 					card_hand.add_card(card, insert_idx, true)
+					CardAudio.place()
 				else:
 					card.resting_z_index = 0
 					var parent_node: Node2D = card.get_parent() as Node2D

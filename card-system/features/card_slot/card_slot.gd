@@ -63,6 +63,7 @@ func assign_card(card: Card) -> void:
 	if card:
 		card_slotted.emit(card, self)
 		_play_dock_pulse()
+		CardAudio.dock()
 
 
 ## Clears and returns the docked card from this slot.

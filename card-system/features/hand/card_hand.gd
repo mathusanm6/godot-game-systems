@@ -145,6 +145,7 @@ func move_card(card: Card, new_index: int, animate: bool = true) -> bool:
 	cards.remove_at(old_index)
 	cards.insert(target_index, card)
 	reorganize_hand(animate)
+	CardAudio.reorder()
 	return true
 
 

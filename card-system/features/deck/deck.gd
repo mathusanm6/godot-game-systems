@@ -163,6 +163,7 @@ func draw_card() -> Card:
 		card_manager.register_card(card_instance)
 
 	card_drawn.emit(drawn_data, card_instance)
+	CardAudio.draw()
 	return card_instance
 
 

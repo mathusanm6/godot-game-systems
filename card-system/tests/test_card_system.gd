@@ -17,6 +17,7 @@ func _init() -> void:
 	success = _test_hand_card_limit_8() and success
 	success = _test_discard_pile_contracts() and success
 	success = _test_discard_via_drag_and_drop() and success
+	success = _test_card_audio_system() and success
 
 	if success:
 		print("✅ ALL TESTS PASSED SUCCESSFULLY!")
@@ -800,3 +801,200 @@ func _test_discard_via_drag_and_drop() -> bool:
 	manager.free()
 	print("  -> Card discard via drag & drop validated.")
 	return true
+
+
+func _test_card_audio_system() -> bool:
+	print("[Test] Validating CardAudio system, voice pool, and SFX triggers...")
+
+	# 1. Test fail-soft when no CardAudio instance exists
+	CardAudio.instance = null
+	CardAudio.draw()
+	CardAudio.take()
+	CardAudio.dock()
+	CardAudio.place()
+	CardAudio.discard()
+	CardAudio.reorder()
+	CardAudio.shuffle()
+
+	# 2. Instantiate CardAudio and verify contracts
+	var audio := CardAudio.new()
+	root.add_child(audio)
+
+	if CardAudio.instance != audio:
+		push_error("CardAudio.instance should reference the active tree instance")
+		audio.free()
+		return false
+
+	if not audio.place_sound:
+		push_error("CardAudio place_sound stream failed to preload")
+		audio.free()
+		return false
+
+	if audio.take_sounds.size() != 3 or not audio.take_sounds[0] or not audio.take_sounds[1] or not audio.take_sounds[2]:
+		push_error("CardAudio take_sounds must have 3 valid preloaded streams")
+		audio.free()
+		return false
+
+	if audio._players.size() != CardAudio.POOL_SIZE:
+		push_error("CardAudio must spawn POOL_SIZE audio players, got %d" % audio._players.size())
+		audio.free()
+		return false
+
+	# 3. Test sound triggers and signal emission
+	var received_events: Array[StringName] = []
+	audio.sound_played.connect(func(event_name: StringName, _stream: AudioStream) -> void:
+		received_events.append(event_name)
+	)
+
+	CardAudio.draw()
+	if not received_events.has(&"draw"):
+		push_error("CardAudio.draw() did not emit sound_played with &\"draw\"")
+		audio.free()
+		return false
+
+	CardAudio.take()
+	if not received_events.has(&"take"):
+		push_error("CardAudio.take() did not emit sound_played with &\"take\"")
+		audio.free()
+		return false
+
+	CardAudio.dock()
+	if not received_events.has(&"dock"):
+		push_error("CardAudio.dock() did not emit sound_played with &\"dock\"")
+		audio.free()
+		return false
+
+	CardAudio.place()
+	if not received_events.has(&"place"):
+		push_error("CardAudio.place() did not emit sound_played with &\"place\"")
+		audio.free()
+		return false
+
+	CardAudio.discard()
+	if not received_events.has(&"discard"):
+		push_error("CardAudio.discard() did not emit sound_played with &\"discard\"")
+		audio.free()
+		return false
+
+	CardAudio.reorder()
+	if not received_events.has(&"reorder"):
+		push_error("CardAudio.reorder() did not emit sound_played with &\"reorder\"")
+		audio.free()
+		return false
+
+	# 4. Test SFX disabled toggle
+	received_events.clear()
+	audio.sfx_enabled = false
+	audio.reset_cooldowns()
+	CardAudio.dock()
+	if not received_events.is_empty():
+		push_error("CardAudio should not play or emit sounds when sfx_enabled is false")
+		audio.free()
+		return false
+	audio.sfx_enabled = true
+
+	# 5. Test gameplay integration: CardDeck drawing triggers audio
+	received_events.clear()
+	audio.reset_cooldowns()
+	var deck := CardDeck.new()
+	var hand := CardHand.new()
+	root.add_child(deck)
+	root.add_child(hand)
+	deck.card_hand = hand
+	var card_data: CardData = load("res://resources/cards/spades_A.tres") as CardData
+	deck.initial_cards = [card_data]
+	deck.draw_pile = [card_data]
+	deck.draw_card()
+	if not received_events.has(&"draw"):
+		push_error("CardDeck.draw_card() should trigger CardAudio draw sound")
+		deck.free()
+		hand.free()
+		audio.free()
+		return false
+	deck.free()
+	hand.free()
+
+	# 6. Test gameplay integration: CardSlot docking triggers audio
+	received_events.clear()
+	audio.reset_cooldowns()
+	var slot := CardSlot.new()
+	var card_scene: PackedScene = load("res://features/card/Card.tscn")
+	var card_inst: Card = card_scene.instantiate() as Card
+	root.add_child(slot)
+	root.add_child(card_inst)
+	slot.assign_card(card_inst)
+	if not received_events.has(&"dock"):
+		push_error("CardSlot.assign_card() should trigger CardAudio dock sound")
+		slot.free()
+		card_inst.free()
+		audio.free()
+		return false
+	slot.free()
+	card_inst.free()
+
+	# 7. Test gameplay integration: DiscardPile triggers audio
+	received_events.clear()
+	audio.reset_cooldowns()
+	var discard_pile := DiscardPile.new()
+	var discard_card: Card = card_scene.instantiate() as Card
+	root.add_child(discard_pile)
+	root.add_child(discard_card)
+	discard_pile.discard_card(discard_card, false)
+	if not received_events.has(&"discard"):
+		push_error("DiscardPile.discard_card() should trigger CardAudio discard sound")
+		discard_pile.free()
+		audio.free()
+		return false
+	discard_pile.free()
+
+	# 8. Test Background Music contracts
+	if not audio.music_stream:
+		push_error("CardAudio music_stream must be assigned")
+		audio.free()
+		return false
+
+	if audio.music_stream is AudioStreamMP3 and not (audio.music_stream as AudioStreamMP3).loop:
+		push_error("CardAudio music_stream must have loop=true")
+		audio.free()
+		return false
+
+	if audio.music_volume_db > -10.0:
+		push_error("CardAudio ambient music volume should be subtle/quiet (<= -10.0 dB), got %f" % audio.music_volume_db)
+		audio.free()
+		return false
+
+	var music_events: Array[StringName] = []
+	audio.music_started.connect(func(_stream: AudioStream) -> void:
+		music_events.append(&"started")
+	)
+	audio.music_stopped.connect(func() -> void:
+		music_events.append(&"stopped")
+	)
+
+	audio.play_music(0.0)
+	if not music_events.has(&"started"):
+		push_error("CardAudio.play_music() did not emit music_started")
+		audio.free()
+		return false
+
+	audio.set_music_volume(-18.0)
+	if audio.music_volume_db != -18.0:
+		push_error("CardAudio.set_music_volume failed to update volume")
+		audio.free()
+		return false
+
+	audio.stop_music(0.0)
+	if not music_events.has(&"stopped"):
+		push_error("CardAudio.stop_music() did not emit music_stopped")
+		audio.free()
+		return false
+
+	# 9. Cleanup and instance unregistration
+	audio.free()
+	if CardAudio.instance != null:
+		push_error("CardAudio.instance must be reset to null when freed")
+		return false
+
+	print("  -> CardAudio system, voice pool, SFX triggers, and background music validated.")
+	return true
+

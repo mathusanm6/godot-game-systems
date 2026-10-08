@@ -121,6 +121,7 @@ func discard_card(card: Card, animate: bool = true) -> void:
 
 	card_discarded.emit(data, card)
 	discard_count_changed.emit(discard_pile.size())
+	CardAudio.discard()
 
 
 ## Adds CardData directly to the discard pile without a scene instance.
@@ -149,6 +150,7 @@ func recycle_into_deck(deck: Node = target_deck, shuffle: bool = true) -> int:
 	_update_display()
 	discard_pile_cleared.emit()
 	discard_count_changed.emit(0)
+	CardAudio.shuffle()
 	return count
 
 

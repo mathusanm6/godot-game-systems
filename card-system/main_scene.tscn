@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://d0y5vh3p5jdv7" path="res://features/hand/card_hand.gd" id="4_hand_script"]
 [ext_resource type="PackedScene" uid="uid://c5q3y8e6w8r2k" path="res://features/deck/Deck.tscn" id="5_deck_scn"]
 [ext_resource type="Script" uid="uid://ylbv1te3m7b6" path="res://core/data/card_data.gd" id="6_card_data_script"]
+[ext_resource type="PackedScene" uid="uid://df43lap81mn5e" path="res://features/discard_pile/DiscardPile.tscn" id="7_discard_scn"]
+[ext_resource type="Script" uid="uid://c0xiayjcft6s3" path="res://core/audio/card_audio.gd" id="8_card_audio"]
 [ext_resource type="Resource" uid="uid://bfyt1esn6e8lm" path="res://resources/cards/clubs_9.tres" id="res_clubs_9"]
 [ext_resource type="Resource" uid="uid://c86ujn2ufnpuy" path="res://resources/cards/clubs_A.tres" id="res_clubs_A"]
 [ext_resource type="Resource" uid="uid://dkpa2vnogqb2r" path="res://resources/cards/clubs_J.tres" id="res_clubs_J"]
@@ -27,7 +29,6 @@
 [ext_resource type="Resource" uid="uid://b538i57ra0ygm" path="res://resources/cards/spades_J.tres" id="res_spades_J"]
 [ext_resource type="Resource" uid="uid://ij68fs8xcut6" path="res://resources/cards/spades_K.tres" id="res_spades_K"]
 [ext_resource type="Resource" uid="uid://d0crwhov31gb6" path="res://resources/cards/spades_Q.tres" id="res_spades_Q"]
-[ext_resource type="PackedScene" uid="uid://df43k9p81mn5e" path="res://features/discard_pile/DiscardPile.tscn" id="7_discard_scn"]
 
 [node name="MainScene" type="Node2D" unique_id=1426277657]
 
@@ -74,3 +75,6 @@ initial_cards = Array[ExtResource("6_card_data_script")]([ExtResource("res_clubs
 
 [node name="DiscardPile" parent="CardManager" unique_id=987654321 instance=ExtResource("7_discard_scn")]
 position = Vector2(1130, 640)
+
+[node name="CardAudio" type="Node" parent="CardManager" unique_id=99887766]
+script = ExtResource("8_card_audio")

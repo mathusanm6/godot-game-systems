@@ -172,6 +172,7 @@ func start_drag() -> void:
 		drag_pivot = get_local_mouse_position()
 		drag_offset = get_global_mouse_position() - global_position
 	drag_started.emit(self)
+	CardAudio.take()
 
 
 ## Concludes dragging interaction.
@@ -196,6 +197,7 @@ func return_to_position(
 	set_hovered(false)
 	current_state = State.RETURNING
 	z_index = 100
+	CardAudio.place()
 
 	_return_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(
 		Tween.EASE_OUT
