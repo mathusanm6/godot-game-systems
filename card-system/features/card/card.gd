@@ -132,11 +132,6 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
-	# Periodic boundary verification while hovered to cleanly unhover if pointer departed
-	if is_hovered and not is_dragging and not is_card_on_card_slot and is_inside_tree():
-		if not contains_global_point(get_global_mouse_position(), true):
-			_mouse_exit()
-
 	if is_dragging:
 		var velocity_x: float = global_position.x - _last_pos_x
 		_last_pos_x = global_position.x
@@ -163,8 +158,8 @@ func _process(delta: float) -> void:
 		Vector2(0, -hover_lift) if is_lifted else Vector2.ZERO
 	)
 
-	if is_dragging or absf(card_image.rotation) > 0.001:
-		card_image.position = drag_pivot - (drag_pivot - hover_target).rotated(card_image.rotation)
+	if is_dragging:
+		card_image.position = hover_target
 	else:
 		drag_pivot = Vector2.ZERO
 		if not _hover_tween or not _hover_tween.is_running():
@@ -173,8 +168,7 @@ func _process(delta: float) -> void:
 
 ## Initiates dragging interaction.
 func start_drag() -> void:
-	if _return_tween:
-		_return_tween.kill()
+	_kill_tweens()
 
 	current_state = State.DRAGGING
 	position_before_drag = global_position
@@ -259,8 +253,12 @@ func set_hovered(on: bool) -> void:
 		current_state = State.HOVERED if on else (State.SLOTTED if card_slot else State.IDLE)
 
 	_update_collision_shape_for_hover(on)
+	z_index = 100 if on else resting_z_index
 
 	if not is_inside_tree() or not card_image:
+		return
+
+	if is_dragging:
 		return
 
 	if _hover_tween:
@@ -278,12 +276,10 @@ func set_hovered(on: bool) -> void:
 	var target_scale: Vector2 = _base_card_image_scale * (hover_scale if on else 1.0)
 	var target_tilt: float = hover_tilt_deg if on else 0.0
 
-	if not is_dragging:
-		_hover_tween.tween_property(card_image, "position", target_pos, hover_duration)
-		# Straighten card rotation when hovered in hand, restore curved tilt when unhovered
-		var target_rot: float = 0.0 if (on or card_slot) else hand_rotation
-		_hover_tween.tween_property(self, "rotation", target_rot, hover_duration)
-
+	_hover_tween.tween_property(card_image, "position", target_pos, hover_duration)
+	# Straighten card rotation when hovered in hand, restore curved tilt when unhovered
+	var target_rot: float = 0.0 if (on or card_slot) else hand_rotation
+	_hover_tween.tween_property(self, "rotation", target_rot, hover_duration)
 	_hover_tween.tween_property(card_image, "scale", target_scale, hover_duration)
 
 	if card_image.material:
@@ -294,23 +290,11 @@ func set_hovered(on: bool) -> void:
 			hover_duration,
 		)
 
-	z_index = 100 if on else resting_z_index
 
-
-func _update_collision_shape_for_hover(on: bool) -> void:
-	if not collision_shape_2d or not (collision_shape_2d.shape is RectangleShape2D):
-		return
-	var rect_shape := collision_shape_2d.shape as RectangleShape2D
-	if on:
-		var rot_swing_x: float = absf(sin(hand_rotation)) * (_base_collision_size.y * 0.5)
-		var extra_w: float = maxf(rot_swing_x * 2.0 + 20.0, 48.0)
-		rect_shape.size = Vector2(
-			_base_collision_size.x * hover_scale + extra_w,
-			_base_collision_size.y * hover_scale + hover_lift + 16.0,
-		)
-		collision_shape_2d.position = Vector2(0.0, -hover_lift * 0.5)
-	else:
-		rect_shape.size = _base_collision_size
+func _update_collision_shape_for_hover(_on: bool) -> void:
+	# Maintain stable collision shape to prevent physics engine broadphase jitter
+	if collision_shape_2d and collision_shape_2d.shape is RectangleShape2D:
+		(collision_shape_2d.shape as RectangleShape2D).size = _base_collision_size
 		collision_shape_2d.position = Vector2.ZERO
 
 

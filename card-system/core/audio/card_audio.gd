@@ -35,8 +35,8 @@ static var instance: CardAudio = null
 ## Ambient background volume in dB (gentle background ambiance, not overpowering).
 @export_range(-40.0, 0.0, 0.5) var music_volume_db: float = -16.0
 
-## Duration of smooth music fade-in in seconds.
-@export_range(0.0, 5.0, 0.1) var music_fade_in_duration: float = 1.2
+## Duration of smooth music fade-in in seconds (0.0 plays immediately at target volume).
+@export_range(0.0, 5.0, 0.1) var music_fade_in_duration: float = 0.0
 
 ## Dedicated audio bus for background music.
 @export var music_bus: StringName = &"Music"
@@ -59,6 +59,7 @@ static var instance: CardAudio = null
 @export var place_volume_db: float = -2.0
 @export var discard_volume_db: float = 0.5
 @export var reorder_volume_db: float = -5.0
+@export var hover_volume_db: float = -14.0
 
 # Voice pool internals
 var _players: Array[AudioStreamPlayer] = []
@@ -111,10 +112,15 @@ func _exit_tree() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# Browser autoplay policy safety: ensure music starts on first user interaction if blocked
+	# Autoplay safety: resume / start music on ANY user interaction (motion, click, key, touch)
 	if music_enabled and _music_player and is_inside_tree() and not _music_player.playing:
-		if event is InputEventMouseButton and event.is_pressed():
-			play_music(0.5)
+		if (
+			event is InputEventMouse
+			or event is InputEventKey
+			or event is InputEventScreenTouch
+			or event is InputEventScreenDrag
+		):
+			play_music(0.0)
 
 
 func _ensure_pool() -> void:
@@ -309,9 +315,23 @@ func play_shuffle() -> void:
 		tween.tween_interval(0.06)
 
 
+## Plays a light tactile card tick sound when hovering over a card.
+func play_hover() -> void:
+	if not _can_trigger(&"hover", 50):
+		return
+	var stream := _get_random_take_sound()
+	var pitch := randf_range(1.25, 1.40)
+	_play_voice(stream, hover_volume_db, pitch, PRIORITY_LOW)
+	sound_played.emit(&"hover", stream)
+
+
 # -----------------------------------------------------------------------------
 # Static Convenience Helpers (Fail-soft if instance is null)
 # -----------------------------------------------------------------------------
+
+static func hover() -> void:
+	if instance:
+		instance.play_hover()
 
 static func draw() -> void:
 	if instance:

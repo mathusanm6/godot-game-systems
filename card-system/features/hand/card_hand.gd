@@ -152,9 +152,16 @@ func move_card(card: Card, new_index: int, animate: bool = true) -> bool:
 ## Calculates the optimal insertion index in the hand for a given position.
 ## If [param excluding_card] is specified and is currently in the hand, it is ignored
 ## so that the calculation represents inserting among the remaining cards.
-func get_insertion_index_for_position(target_pos: Vector2, excluding_card: Card = null) -> int:
+## [param hysteresis_margin] provides a stabilizing deadzone against boundary chatter.
+func get_insertion_index_for_position(
+	target_pos: Vector2,
+	excluding_card: Card = null,
+	hysteresis_margin: float = 0.0,
+) -> int:
 	var remaining_count: int = cards.size()
+	var current_idx: int = -1
 	if excluding_card != null and cards.has(excluding_card):
+		current_idx = cards.find(excluding_card)
 		remaining_count -= 1
 
 	if remaining_count <= 0:
@@ -170,6 +177,14 @@ func get_insertion_index_for_position(target_pos: Vector2, excluding_card: Card 
 		var u: float = float(i) - half_span
 		var slot_center_x: float = hand_center.x + u * spacing
 		var threshold_x: float = slot_center_x + spacing * 0.5
+
+		# Apply hysteresis threshold when card is already at or near index
+		if hysteresis_margin > 0.0 and current_idx >= 0:
+			if i == current_idx:
+				threshold_x += hysteresis_margin
+			elif i == current_idx - 1:
+				threshold_x -= hysteresis_margin
+
 		if local_x < threshold_x:
 			return i
 
@@ -257,17 +272,21 @@ func reorganize_hand(animate: bool = true) -> void:
 
 			var is_already_at_target: bool = (
 				card.position.distance_squared_to(card.hand_position) < 1.0
-				and absf(card.rotation - card.hand_rotation) < 0.005
+				and (card.is_hovered or absf(card.rotation - card.hand_rotation) < 0.005)
 			)
 
 			if should_tween:
-				if not card.is_hovered and not is_already_at_target:
-					card.return_to_position(
-						card.hand_position,
-						card.hand_rotation,
-						transition_duration,
-					)
-					card.z_index = card.resting_z_index
+				if not is_already_at_target:
+					if card.is_hovered:
+						var tween := card.create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+						tween.tween_property(card, "position", card.hand_position, transition_duration)
+					else:
+						card.return_to_position(
+							card.hand_position,
+							card.hand_rotation,
+							transition_duration,
+						)
+						card.z_index = card.resting_z_index
 			else:
 				card.position = card.hand_position
 				if not card.is_hovered:

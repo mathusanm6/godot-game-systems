@@ -48,6 +48,7 @@ var _is_mouse_down: bool = false
 
 func _ready() -> void:
 	add_to_group("managers")
+	add_to_group("card_managers")
 	child_entered_tree.connect(_on_child_entered_tree)
 	child_exiting_tree.connect(_on_child_exiting_tree)
 
@@ -104,12 +105,12 @@ func _input(event: InputEvent) -> void:
 				if viewport:
 					viewport.set_input_as_handled()
 
-	elif not card_being_dragged:
-		return
-
-	# 2. Update position during drag
+	# 2. Update position during drag or arbitrate hover on motion
 	elif event is InputEventMouseMotion:
-		_process_card_drag_motion()
+		if card_being_dragged:
+			_process_card_drag_motion()
+		else:
+			_update_hover_on_motion(event.global_position)
 
 
 # -----------------------------------------------------------------------------
@@ -300,6 +301,7 @@ func _process_card_drag_motion() -> void:
 					var target_idx: int = card_hand.get_insertion_index_for_position(
 						card_being_dragged.global_position,
 						card_being_dragged,
+						20.0,
 					)
 					var current_idx: int = card_hand.get_card_index(card_being_dragged)
 					if target_idx != current_idx:
@@ -329,6 +331,8 @@ func _handle_card_drop(card: Card) -> void:
 		target_discard.discard_card(dropped_card, true)
 		_drag_source_slot = null
 		update_slot_and_card_order()
+		if is_inside_tree():
+			_update_hover_on_motion(get_global_mouse_position())
 		return
 
 	var target_slot: CardSlot = over_card_slot
@@ -341,6 +345,8 @@ func _handle_card_drop(card: Card) -> void:
 		_return_card_to_origin(dropped_card)
 
 	_drag_source_slot = null
+	if is_inside_tree():
+		_update_hover_on_motion(get_global_mouse_position())
 
 
 func _dock_card_in_slot(card: Card, target_slot: CardSlot) -> void:
@@ -432,6 +438,7 @@ func _return_card_to_origin(card: Card) -> void:
 			else:
 				card_hand.move_card(card, insert_idx, false)
 				card_hand.reorganize_hand(true)
+				CardAudio.place()
 		else:
 			card.resting_z_index = 0
 			var parent_node: Node2D = card.get_parent() as Node2D
@@ -516,6 +523,54 @@ func _on_card_unhovered(card: Card) -> void:
 
 		if not _hovered_candidates.is_empty():
 			_resolve_hover.call_deferred()
+		elif is_inside_tree():
+			_update_hover_on_motion(get_global_mouse_position())
+
+
+func _switch_hover_to(card: Card) -> void:
+	if card == card_being_hovered:
+		return
+	if card_being_hovered:
+		card_being_hovered.set_hovered(false)
+	card_being_hovered = card
+	if card_being_hovered:
+		card_being_hovered.set_hovered(true)
+		CardAudio.hover()
+		_suppress_pile_hover()
+
+
+func _update_hover_on_motion(mouse_pos: Vector2) -> void:
+	if card_being_dragged or not is_inside_tree():
+		return
+
+	var candidates: Array[Card] = []
+	var all_cards: Array[Node] = get_tree().get_nodes_in_group("cards")
+
+	for node: Node in all_cards:
+		var c := node as Card
+		if not c or not is_instance_valid(c) or c.is_card_on_card_slot or c.current_state == Card.State.RETURNING:
+			continue
+		var check_margin: bool = (c == card_being_hovered)
+		if c.contains_global_point(mouse_pos, check_margin):
+			candidates.append(c)
+
+	if candidates.is_empty():
+		if card_being_hovered:
+			card_being_hovered.set_hovered(false)
+			card_being_hovered = null
+		_hovered_candidates.clear()
+		return
+
+	var top_card: Card = _find_top_card(candidates)
+	if card_being_hovered and candidates.has(card_being_hovered):
+		# Retain active hover unless top_card is strictly higher and mouse is strictly within its body
+		if top_card != card_being_hovered and top_card.contains_global_point(mouse_pos, false):
+			var top_val: int = top_card.resting_z_index if top_card.resting_z_index != 0 else top_card.z_index
+			var cur_val: int = card_being_hovered.resting_z_index if card_being_hovered.resting_z_index != 0 else card_being_hovered.z_index
+			if top_val > cur_val or (top_val == cur_val and top_card.get_index() > card_being_hovered.get_index()):
+				_switch_hover_to(top_card)
+	else:
+		_switch_hover_to(top_card)
 
 
 func _resolve_hover() -> void:
@@ -523,14 +578,7 @@ func _resolve_hover() -> void:
 		return
 
 	var top_card: Card = _find_top_card(_hovered_candidates)
-	if top_card != card_being_hovered:
-		if card_being_hovered:
-			card_being_hovered.set_hovered(false)
-		card_being_hovered = top_card
-		card_being_hovered.set_hovered(true)
-
-	if card_being_hovered:
-		_suppress_pile_hover()
+	_switch_hover_to(top_card)
 
 
 func _suppress_pile_hover() -> void:
