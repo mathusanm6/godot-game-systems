@@ -23,6 +23,8 @@ signal deck_count_changed(count: int)
 @export var card_hand: CardHand = null
 ## Reference to CardManager node for registering drawn cards.
 @export var card_manager: CardManager = null
+## Reference to DiscardPile node for recycling discarded cards when draw pile empties.
+@export var discard_pile: DiscardPile = null
 
 @export_group("Card Back Art")
 ## Card back texture used for the deck sprites (e.g. lattice_blue or lattice_red).
@@ -66,17 +68,7 @@ func _ready() -> void:
 	add_to_group("card_decks")
 	_base_scale = scale
 
-	if not card_hand:
-		var hands: Array[Node] = get_tree().get_nodes_in_group("card_hands")
-		if not hands.is_empty():
-			card_hand = hands[0] as CardHand
-
-	if not card_manager:
-		var managers: Array[Node] = get_tree().get_nodes_in_group("card_managers")
-		if not managers.is_empty():
-			card_manager = managers[0] as CardManager
-		elif get_parent() is CardManager:
-			card_manager = get_parent() as CardManager
+	_ensure_dependencies()
 
 	# Populate draw pile
 	draw_pile = initial_cards.duplicate()
@@ -97,37 +89,77 @@ func _exit_tree() -> void:
 		_pulse_tween.kill()
 
 
+func _ensure_dependencies() -> void:
+	if not card_hand and is_inside_tree():
+		var hands: Array[Node] = get_tree().get_nodes_in_group("card_hands")
+		if not hands.is_empty():
+			card_hand = hands[0] as CardHand
+		elif card_manager and card_manager.card_hand:
+			card_hand = card_manager.card_hand
+		elif get_parent() is CardManager and (get_parent() as CardManager).card_hand:
+			card_hand = (get_parent() as CardManager).card_hand
+
+	if not card_manager and is_inside_tree():
+		var managers: Array[Node] = get_tree().get_nodes_in_group("card_managers")
+		if not managers.is_empty():
+			card_manager = managers[0] as CardManager
+		elif get_parent() is CardManager:
+			card_manager = get_parent() as CardManager
+
+	if not discard_pile and is_inside_tree():
+		var piles: Array[Node] = get_tree().get_nodes_in_group("discard_piles")
+		if not piles.is_empty():
+			discard_pile = piles[0] as DiscardPile
+
+
 ## Draws a card, instantiates its visual representation, and places it into hand.
 func draw_card() -> Card:
+	_ensure_dependencies()
+
+	# If hand is already at capacity (e.g. 8 cards), do NOT draw or spawn any card
+	if card_hand and card_hand.is_full:
+		_play_empty_shake()
+		return null
+
 	if draw_pile.is_empty():
+		if discard_pile and not discard_pile.is_empty:
+			discard_pile.recycle_into_deck(self, true)
+			return draw_card()
+
 		deck_depleted.emit()
 		_play_empty_shake()
 		return null
 
+	if not card_scene:
+		return null
+
+	# Instantiation happens ONLY after capacity and deck checks pass
 	var drawn_data: CardData = draw_pile.pop_back()
 	deck_count_changed.emit(draw_pile.size())
 	_update_display()
 	_play_draw_pulse()
 
-	if not card_scene:
-		return null
-
 	var card_instance: Card = card_scene.instantiate() as Card
 	card_instance.card_data = drawn_data
+	card_instance.global_position = global_position
+	card_instance.rotation = 0.0
 
-	# Attach into tree and set initial spawn position at deck
+	# Attempt to place into hand
 	if card_hand:
-		card_hand.add_child(card_instance)
-		card_instance.global_position = global_position
-		card_instance.rotation = 0.0
+		var added: bool = card_hand.add_card(card_instance, -1, true)
+		if not added:
+			# If hand rejected the card (e.g. limit reached), clean up immediately
+			draw_pile.append(drawn_data)
+			deck_count_changed.emit(draw_pile.size())
+			_update_display()
+			card_instance.free()
+			_play_empty_shake()
+			return null
 
 		if card_manager:
 			card_manager.register_card(card_instance)
-
-		card_hand.add_card(card_instance, -1, true)
 	elif card_manager:
 		card_manager.add_child(card_instance)
-		card_instance.global_position = global_position
 		card_manager.register_card(card_instance)
 
 	card_drawn.emit(drawn_data, card_instance)

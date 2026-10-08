@@ -27,6 +27,7 @@
 [ext_resource type="Resource" uid="uid://b538i57ra0ygm" path="res://resources/cards/spades_J.tres" id="res_spades_J"]
 [ext_resource type="Resource" uid="uid://ij68fs8xcut6" path="res://resources/cards/spades_K.tres" id="res_spades_K"]
 [ext_resource type="Resource" uid="uid://d0crwhov31gb6" path="res://resources/cards/spades_Q.tres" id="res_spades_Q"]
+[ext_resource type="PackedScene" uid="uid://df43k9p81mn5e" path="res://features/discard_pile/DiscardPile.tscn" id="7_discard_scn"]
 
 [node name="MainScene" type="Node2D" unique_id=1426277657]
 
@@ -70,3 +71,6 @@ card_data = ExtResource("res_diamonds_Q")
 [node name="Deck" parent="CardManager" unique_id=123987456 instance=ExtResource("5_deck_scn")]
 position = Vector2(150, 640)
 initial_cards = Array[ExtResource("6_card_data_script")]([ExtResource("res_clubs_J"), ExtResource("res_hearts_A"), ExtResource("res_diamonds_10"), ExtResource("res_spades_K"), ExtResource("res_clubs_A"), ExtResource("res_hearts_10"), ExtResource("res_spades_J"), ExtResource("res_diamonds_K"), ExtResource("res_clubs_Q"), ExtResource("res_hearts_7"), ExtResource("res_spades_8"), ExtResource("res_diamonds_7"), ExtResource("res_clubs_9"), ExtResource("res_hearts_J"), ExtResource("res_spades_Q"), ExtResource("res_diamonds_A"), ExtResource("res_joker_red"), ExtResource("res_joker_black")])
+
+[node name="DiscardPile" parent="CardManager" unique_id=987654321 instance=ExtResource("7_discard_scn")]
+position = Vector2(1130, 640)

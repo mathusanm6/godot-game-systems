@@ -4,6 +4,9 @@ extends Node2D
 ## Optional explicit reference to the CardHand node.
 @export var card_hand: CardHand = null
 
+## Optional explicit reference to the DiscardPile node.
+@export var discard_pile: DiscardPile = null
+
 ## Currently active dragged card, or null if idle.
 var card_being_dragged: Card = null
 
@@ -24,11 +27,21 @@ var over_card_slot: CardSlot:
 				top_slot = slot
 		return top_slot
 
+## Currently hovered discard pile.
+var over_discard_pile: DiscardPile:
+	get:
+		if _overlapping_discard_piles.is_empty():
+			return null
+		return _overlapping_discard_piles.back()
+
 # Internal tracking
 var _overlapping_slots: Array[CardSlot] = []
+var _overlapping_discard_piles: Array[DiscardPile] = []
 var _clicked_candidates: Array[Card] = []
 var _hovered_candidates: Array[Card] = []
 var _last_highlighted_slot: CardSlot = null
+var _last_highlighted_discard_pile: DiscardPile = null
+var _drag_source_slot: CardSlot = null
 
 var _is_mouse_down: bool = false
 
@@ -56,6 +69,10 @@ func _ready() -> void:
 		if card_slot is CardSlot:
 			register_card_slot(card_slot)
 
+	for pile: Node in get_tree().get_nodes_in_group("discard_piles"):
+		if pile is DiscardPile:
+			register_discard_pile(pile)
+
 	if card_hand:
 		card_hand.reorganize_hand(false)
 
@@ -72,6 +89,7 @@ func _process(_delta: float) -> void:
 
 func _exit_tree() -> void:
 	_clear_slot_highlight()
+	_clear_discard_pile_highlight()
 
 
 func _input(event: InputEvent) -> void:
@@ -133,6 +151,46 @@ func unregister_card_slot(card_slot: CardSlot) -> void:
 		card_slot.card_slot_exited.disconnect(_on_card_slot_exited)
 
 
+## Subscribes to events emitted from a discard pile instance.
+func register_discard_pile(pile: DiscardPile) -> void:
+	if not pile.discard_pile_entered.is_connected(_on_discard_pile_entered):
+		pile.discard_pile_entered.connect(_on_discard_pile_entered)
+	if not pile.discard_pile_exited.is_connected(_on_discard_pile_exited):
+		pile.discard_pile_exited.connect(_on_discard_pile_exited)
+	if not discard_pile:
+		discard_pile = pile
+
+
+## Disconnects events for an unregistering discard pile instance.
+func unregister_discard_pile(pile: DiscardPile) -> void:
+	if pile.discard_pile_entered.is_connected(_on_discard_pile_entered):
+		pile.discard_pile_entered.disconnect(_on_discard_pile_entered)
+	if pile.discard_pile_exited.is_connected(_on_discard_pile_exited):
+		pile.discard_pile_exited.disconnect(_on_discard_pile_exited)
+	_overlapping_discard_piles.erase(pile)
+	if _last_highlighted_discard_pile == pile:
+		_clear_discard_pile_highlight()
+	if discard_pile == pile:
+		discard_pile = null
+
+
+func _on_discard_pile_entered(pile: DiscardPile) -> void:
+	if not _overlapping_discard_piles.has(pile):
+		_overlapping_discard_piles.append(pile)
+
+
+func _on_discard_pile_exited(pile: DiscardPile) -> void:
+	_overlapping_discard_piles.erase(pile)
+	if _last_highlighted_discard_pile == pile:
+		_clear_discard_pile_highlight()
+
+
+func _clear_discard_pile_highlight() -> void:
+	if _last_highlighted_discard_pile:
+		_last_highlighted_discard_pile.set_highlight(false)
+		_last_highlighted_discard_pile = null
+
+
 # -----------------------------------------------------------------------------
 # Z-Index and Stacking Order
 # -----------------------------------------------------------------------------
@@ -170,6 +228,8 @@ func _on_child_entered_tree(node: Node) -> void:
 			card_hand.add_card(node, -1, true)
 	elif node is CardSlot:
 		register_card_slot(node)
+	elif node is DiscardPile:
+		register_discard_pile(node)
 	elif node is CardHand and not card_hand:
 		card_hand = node
 	update_slot_and_card_order()
@@ -177,6 +237,9 @@ func _on_child_entered_tree(node: Node) -> void:
 
 func _on_child_exiting_tree(node: Node) -> void:
 	if node is Card:
+		if node == card_being_dragged:
+			card_being_dragged = null
+			_drag_source_slot = null
 		_clicked_candidates.erase(node)
 		_hovered_candidates.erase(node)
 		if card_hand:
@@ -185,6 +248,8 @@ func _on_child_exiting_tree(node: Node) -> void:
 	elif node is CardSlot:
 		_overlapping_slots.erase(node)
 		unregister_card_slot(node)
+	elif node is DiscardPile:
+		unregister_discard_pile(node)
 	elif node == card_hand:
 		card_hand = null
 	update_slot_and_card_order()
@@ -194,9 +259,13 @@ func _on_child_exiting_tree(node: Node) -> void:
 # Drag & Drop Resolution
 # -----------------------------------------------------------------------------
 func _process_card_drag_motion() -> void:
-	var target_pos: Vector2 = get_global_mouse_position() - card_being_dragged.drag_offset
-	var vp_rect: Rect2 = get_viewport_rect()
-	card_being_dragged.global_position = target_pos.clamp(Vector2.ZERO, vp_rect.size)
+	if not card_being_dragged:
+		return
+
+	if is_inside_tree():
+		var target_pos: Vector2 = get_global_mouse_position() - card_being_dragged.drag_offset
+		var vp_rect: Rect2 = get_viewport_rect()
+		card_being_dragged.global_position = target_pos.clamp(Vector2.ZERO, vp_rect.size)
 
 	# Update visual highlight on current slot under mouse
 	var current_slot: CardSlot = over_card_slot
@@ -206,15 +275,59 @@ func _process_card_drag_motion() -> void:
 			current_slot.set_highlight(true)
 			_last_highlighted_slot = current_slot
 
+	# Update visual highlight on current discard pile under mouse
+	var current_discard: DiscardPile = over_discard_pile
+	if current_discard != _last_highlighted_discard_pile:
+		_clear_discard_pile_highlight()
+		if current_discard:
+			current_discard.set_highlight(true)
+			_last_highlighted_discard_pile = current_discard
+
+	# Dynamic hand reordering & unslotting preview
+	if card_hand:
+		if current_slot == null and current_discard == null:
+			var is_from_slot: bool = _drag_source_slot != null
+			var in_hand_zone: bool = card_being_dragged.global_position.y >= card_hand.hand_center.y - 200.0
+
+			if not is_from_slot or in_hand_zone:
+				if not card_hand.has_card(card_being_dragged):
+					if not card_hand.is_full:
+						var insert_idx: int = card_hand.get_insertion_index_for_position(card_being_dragged.global_position)
+						card_hand.add_card(card_being_dragged, insert_idx, true)
+				else:
+					var target_idx: int = card_hand.get_insertion_index_for_position(
+						card_being_dragged.global_position,
+						card_being_dragged,
+					)
+					var current_idx: int = card_hand.get_card_index(card_being_dragged)
+					if target_idx != current_idx:
+						card_hand.move_card(card_being_dragged, target_idx, true)
+			else:
+				# Slotted card dragged back above hand zone
+				if card_hand.has_card(card_being_dragged):
+					card_hand.remove_card(card_being_dragged, true)
+		else:
+			# Slotted card dragged over a slot or discard pile: withdraw temporary hand preview
+			if _drag_source_slot != null and card_hand.has_card(card_being_dragged):
+				card_hand.remove_card(card_being_dragged, true)
+
 
 func _handle_card_drop(card: Card) -> void:
 	_clear_slot_highlight()
+	_clear_discard_pile_highlight()
 
 	var dropped_card: Card = card
 	card_being_dragged = null
 	if dropped_card:
 		dropped_card.stop_drag()
 		_clear_hover_state_for(dropped_card)
+
+	var target_discard: DiscardPile = over_discard_pile
+	if target_discard:
+		target_discard.discard_card(dropped_card, true)
+		_drag_source_slot = null
+		update_slot_and_card_order()
+		return
 
 	var target_slot: CardSlot = over_card_slot
 	if target_slot:
@@ -225,14 +338,17 @@ func _handle_card_drop(card: Card) -> void:
 	else:
 		_return_card_to_origin(dropped_card)
 
+	_drag_source_slot = null
+
 
 func _dock_card_in_slot(card: Card, target_slot: CardSlot) -> void:
 	if card_hand and card_hand.has_card(card):
 		card_hand.remove_card(card, true)
 
+	var source_slot: CardSlot = card.card_slot if card.card_slot else _drag_source_slot
 	# Release from prior slot if moved between slots
-	if card.card_slot and card.card_slot != target_slot:
-		card.card_slot.clear_card()
+	if source_slot and source_slot != target_slot:
+		source_slot.clear_card()
 
 	target_slot.assign_card(card)
 	card.snap_to_slot(target_slot)
@@ -241,7 +357,7 @@ func _dock_card_in_slot(card: Card, target_slot: CardSlot) -> void:
 
 func _swap_cards(dragged_card: Card, target_slot: CardSlot) -> void:
 	var previous_card: Card = target_slot.card_in_slot
-	var source_slot: CardSlot = dragged_card.card_slot
+	var source_slot: CardSlot = dragged_card.card_slot if dragged_card.card_slot else _drag_source_slot
 
 	if card_hand and card_hand.has_card(dragged_card):
 		card_hand.remove_card(dragged_card, false)
@@ -257,7 +373,8 @@ func _swap_cards(dragged_card: Card, target_slot: CardSlot) -> void:
 	else:
 		previous_card.card_slot = null
 		if card_hand:
-			card_hand.add_card(previous_card, -1, true)
+			var insert_idx: int = card_hand.get_insertion_index_for_position(dragged_card.global_position)
+			card_hand.add_card(previous_card, insert_idx, true)
 		else:
 			previous_card.resting_z_index = 0
 			var parent_node: Node2D = previous_card.get_parent() as Node2D
@@ -271,23 +388,42 @@ func _swap_cards(dragged_card: Card, target_slot: CardSlot) -> void:
 
 
 func _return_card_to_origin(card: Card) -> void:
-	if card.card_slot:
-		# If hand exists, dropping outside slots unslots the card back to hand
-		if card_hand:
-			var slot: CardSlot = card.card_slot
-			slot.clear_card()
+	var source_slot: CardSlot = card.card_slot if card.card_slot else _drag_source_slot
+	if source_slot:
+		# If hand exists and not full (or card already belongs to hand), unslot back to hand
+		if card_hand and (card_hand.has_card(card) or not card_hand.is_full):
+			source_slot.clear_card()
 			card.card_slot = null
-			card_hand.add_card(card, -1, true)
+			var insert_idx: int = card_hand.get_insertion_index_for_position(
+				card.global_position,
+				card if card_hand.has_card(card) else null,
+			)
+			if card_hand.has_card(card):
+				card_hand.move_card(card, insert_idx, false)
+				card_hand.reorganize_hand(true)
+			else:
+				card_hand.add_card(card, insert_idx, true)
 		else:
-			# Return into assigned slot
-			card.card_slot.assign_card(card)
-			card.snap_to_slot(card.card_slot)
+			# Return into assigned slot (either hand is full or no hand exists)
+			source_slot.assign_card(card)
+			card.snap_to_slot(source_slot)
 	else:
 		# Return to hand/table resting position
 		if card_hand:
+			var insert_idx: int = card_hand.get_insertion_index_for_position(
+				card.global_position,
+				card if card_hand.has_card(card) else null,
+			)
 			if not card_hand.has_card(card):
-				card_hand.add_card(card, -1, true)
+				if not card_hand.is_full:
+					card_hand.add_card(card, insert_idx, true)
+				else:
+					card.resting_z_index = 0
+					var parent_node: Node2D = card.get_parent() as Node2D
+					var return_pos: Vector2 = parent_node.to_local(card.position_before_drag) if parent_node else card.position_before_drag
+					card.return_to_position(return_pos)
 			else:
+				card_hand.move_card(card, insert_idx, false)
 				card_hand.reorganize_hand(true)
 		else:
 			card.resting_z_index = 0
@@ -333,6 +469,7 @@ func _resolve_click() -> void:
 		return
 
 	card_being_dragged = top_card
+	_drag_source_slot = card_being_dragged.card_slot
 
 	# Free slot occupancy temporarily while dragging
 	if card_being_dragged.card_slot:

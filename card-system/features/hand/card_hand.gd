@@ -7,6 +7,12 @@ signal card_added(card: Card)
 signal card_removed(card: Card)
 ## Emitted whenever the hand layout is recalculated and cards are rearranged.
 signal hand_reorganized
+## Emitted when attempting to add a card to a full hand.
+signal hand_full(attempted_card: Card)
+
+@export_group("Hand Capacity")
+## Maximum number of cards permitted in the hand at one time.
+@export_range(1, 20, 1) var max_cards: int = 8
 
 @export_group("Layout Geometry")
 ## Center position of the hand arc (highest point of the curve).
@@ -79,15 +85,33 @@ func _ready() -> void:
 	reorganize_hand(false)
 
 
-## Adds a card to the hand at the given index (or end if -1).
-func add_card(card: Card, at_index: int = -1, animate: bool = true) -> void:
+## Whether the hand has reached maximum card capacity.
+var is_full: bool:
+	get:
+		return cards.size() >= max_cards
+
+
+## Returns true if the hand has room for at least one more card.
+func can_add_card() -> bool:
+	return cards.size() < max_cards
+
+
+## Adds a card to the hand at the given index (or end if -1). Returns true if added or reordered, false if hand is full.
+func add_card(card: Card, at_index: int = -1, animate: bool = true) -> bool:
 	if not card:
-		return
+		return false
 
 	if cards.has(card):
-		card.card_hand = self
-		reorganize_hand(animate)
-		return
+		if at_index >= 0:
+			move_card(card, at_index, animate)
+		else:
+			card.card_hand = self
+			reorganize_hand(animate)
+		return true
+
+	if is_full:
+		hand_full.emit(card)
+		return false
 
 	if card.get_parent() != self:
 		if card.get_parent():
@@ -98,13 +122,57 @@ func add_card(card: Card, at_index: int = -1, animate: bool = true) -> void:
 	card.card_hand = self
 	card.card_slot = null
 
-	if at_index >= 0 and at_index < cards.size():
+	if at_index >= 0 and at_index <= cards.size():
 		cards.insert(at_index, card)
 	else:
 		cards.append(card)
 
 	reorganize_hand(animate)
 	card_added.emit(card)
+	return true
+
+
+## Moves a card already in the hand to a new index.
+func move_card(card: Card, new_index: int, animate: bool = true) -> bool:
+	if not card or not cards.has(card):
+		return false
+
+	var old_index: int = cards.find(card)
+	var target_index: int = clampi(new_index, 0, cards.size() - 1)
+	if old_index == target_index:
+		return false
+
+	cards.remove_at(old_index)
+	cards.insert(target_index, card)
+	reorganize_hand(animate)
+	return true
+
+
+## Calculates the optimal insertion index in the hand for a given position.
+## If [param excluding_card] is specified and is currently in the hand, it is ignored
+## so that the calculation represents inserting among the remaining cards.
+func get_insertion_index_for_position(target_pos: Vector2, excluding_card: Card = null) -> int:
+	var remaining_count: int = cards.size()
+	if excluding_card != null and cards.has(excluding_card):
+		remaining_count -= 1
+
+	if remaining_count <= 0:
+		return 0
+
+	var total_slots: int = remaining_count + 1
+	var local_x: float = to_local(target_pos).x
+
+	var half_span: float = float(total_slots - 1) / 2.0
+	var spacing: float = minf(max_card_spacing, max_hand_width / float(total_slots - 1))
+
+	for i in range(total_slots - 1):
+		var u: float = float(i) - half_span
+		var slot_center_x: float = hand_center.x + u * spacing
+		var threshold_x: float = slot_center_x + spacing * 0.5
+		if local_x < threshold_x:
+			return i
+
+	return total_slots - 1
 
 
 ## Removes a card from the hand.
@@ -186,13 +254,19 @@ func reorganize_hand(animate: bool = true) -> void:
 			if not card.is_hovered:
 				card.z_index = card.resting_z_index
 
+			var is_already_at_target: bool = (
+				card.position.distance_squared_to(card.hand_position) < 1.0
+				and absf(card.rotation - card.hand_rotation) < 0.005
+			)
+
 			if should_tween:
-				if not card.is_hovered:
+				if not card.is_hovered and not is_already_at_target:
 					card.return_to_position(
 						card.hand_position,
 						card.hand_rotation,
 						transition_duration,
 					)
+					card.z_index = card.resting_z_index
 			else:
 				card.position = card.hand_position
 				if not card.is_hovered:
@@ -202,10 +276,13 @@ func reorganize_hand(animate: bool = true) -> void:
 
 
 ## Convenience method to return a card into the hand with animation.
-func return_card_to_hand(card: Card, animate: bool = true) -> void:
+func return_card_to_hand(card: Card, at_index: int = -1, animate: bool = true) -> bool:
 	if not card:
-		return
+		return false
 	if not cards.has(card):
-		add_card(card, -1, animate)
+		return add_card(card, at_index, animate)
+	elif at_index >= 0:
+		return move_card(card, at_index, animate)
 	else:
 		reorganize_hand(animate)
+		return true
