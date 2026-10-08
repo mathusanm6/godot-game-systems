@@ -3,7 +3,7 @@ extends Node2D
 
 ## MainScene Orchestrator for Chess Movement System
 ## Clean top-level controller wiring ChessBoard, King, Camera2D, and GameUI.
-## Follows godot-master Call Down, Signal Up architecture.
+## Follows Call Down, Signal Up architecture.
 
 @onready var camera: CameraController = %Camera2D if has_node("%Camera2D") else null
 @onready var chess_board: ChessBoard = %ChessBoard if has_node("%ChessBoard") else null

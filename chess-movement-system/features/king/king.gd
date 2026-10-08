@@ -2,7 +2,7 @@ class_name King
 extends Node2D
 
 ## King Grid Movement System
-## Reusable grid-based chess piece movement system following godot-master guidelines.
+## Reusable grid-based chess piece movement system.
 ## Provides 8-way directional navigation, mouse click & drag movement, held-key auto-repeat,
 ## physics-inspired hop arcs, squash & stretch, dynamic shadows, landing dust, and elastic wall bumps.
 

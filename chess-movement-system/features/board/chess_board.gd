@@ -2,7 +2,7 @@ class_name ChessBoard
 extends Node2D
 
 ## ChessBoard System
-## A modular, procedural expandable chessboard following godot-master standards.
+## A modular, procedural expandable chessboard.
 ## Features dynamic expansion when the King approaches the perimeter, smooth shrink hysteresis,
 ## algebraic chess notation, procedural border frame with drop shadow, and tile fade-in effects.
 
