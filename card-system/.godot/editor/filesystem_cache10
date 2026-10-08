@@ -1,8 +1,8 @@
 78098b89c88a74ebe8c20117b8754620
-::res://::1791446326
+::res://::1791450319
 export_presets.cfg::TextFile::-1::1791368493::0::1::::<><><>0<>0<><>::
 icon.svg::CompressedTexture2D::2696937636793485701::1791210816::1791310708::1::::<><><>0<>0<>20f7e63c84bc8e0a3baf97ea7bab61ec<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
-main_scene.tscn::PackedScene::4502234230258421274::1791446326::0::1::::<><><>0<>0<><>::uid://8qairt8r6gw1::::res://features/card/Card.tscn<>uid://rb6fr1023hm4::::res://core/manager/card_manager.gd<>uid://c1kn3e1csvc1x::::res://features/card_slot/CardSlot.tscn<>uid://d0y5vh3p5jdv7::::res://features/hand/card_hand.gd<>uid://c5q3y8e6w8r2k::::res://features/deck/Deck.tscn<>uid://ylbv1te3m7b6::::res://core/data/card_data.gd<>uid://bfyt1esn6e8lm::::res://resources/cards/clubs_9.tres<>uid://c86ujn2ufnpuy::::res://resources/cards/clubs_A.tres<>uid://dkpa2vnogqb2r::::res://resources/cards/clubs_J.tres<>uid://c5hcmlsfhks6l::::res://resources/cards/clubs_Q.tres<>uid://huuo15aset3y::::res://resources/cards/diamonds_7.tres<>uid://urghpymakcvc::::res://resources/cards/diamonds_10.tres<>uid://du3r37jr4fmeb::::res://resources/cards/diamonds_A.tres<>uid://dp35sagdnnq70::::res://resources/cards/diamonds_K.tres<>uid://cwcw6yvgcg3pm::::res://resources/cards/diamonds_Q.tres<>uid://dmjvvayiwjmhg::::res://resources/cards/hearts_7.tres<>uid://d1r33pi8o02mn::::res://resources/cards/hearts_10.tres<>uid://dggcl0j2mqcu::::res://resources/cards/hearts_A.tres<>uid://dsf5wmhhy6pwh::::res://resources/cards/hearts_J.tres<>uid://bjjx2tpdrmhau::::res://resources/cards/hearts_K.tres<>uid://djpua61rp5u7f::::res://resources/cards/joker_black.tres<>uid://cbwduu6cfeo38::::res://resources/cards/joker_red.tres<>uid://doaivsbbchijc::::res://resources/cards/spades_8.tres<>uid://pbn270ttdu2x::::res://resources/cards/spades_A.tres<>uid://b538i57ra0ygm::::res://resources/cards/spades_J.tres<>uid://ij68fs8xcut6::::res://resources/cards/spades_K.tres<>uid://d0crwhov31gb6::::res://resources/cards/spades_Q.tres
+main_scene.tscn::PackedScene::4502234230258421274::1791448105::0::1::::<><><>0<>0<><>::uid://8qairt8r6gw1::::res://features/card/Card.tscn<>uid://rb6fr1023hm4::::res://core/manager/card_manager.gd<>uid://c1kn3e1csvc1x::::res://features/card_slot/CardSlot.tscn<>uid://d0y5vh3p5jdv7::::res://features/hand/card_hand.gd<>uid://c5q3y8e6w8r2k::::res://features/deck/Deck.tscn<>uid://ylbv1te3m7b6::::res://core/data/card_data.gd<>uid://bfyt1esn6e8lm::::res://resources/cards/clubs_9.tres<>uid://c86ujn2ufnpuy::::res://resources/cards/clubs_A.tres<>uid://dkpa2vnogqb2r::::res://resources/cards/clubs_J.tres<>uid://c5hcmlsfhks6l::::res://resources/cards/clubs_Q.tres<>uid://huuo15aset3y::::res://resources/cards/diamonds_7.tres<>uid://urghpymakcvc::::res://resources/cards/diamonds_10.tres<>uid://du3r37jr4fmeb::::res://resources/cards/diamonds_A.tres<>uid://dp35sagdnnq70::::res://resources/cards/diamonds_K.tres<>uid://cwcw6yvgcg3pm::::res://resources/cards/diamonds_Q.tres<>uid://dmjvvayiwjmhg::::res://resources/cards/hearts_7.tres<>uid://d1r33pi8o02mn::::res://resources/cards/hearts_10.tres<>uid://dggcl0j2mqcu::::res://resources/cards/hearts_A.tres<>uid://dsf5wmhhy6pwh::::res://resources/cards/hearts_J.tres<>uid://bjjx2tpdrmhau::::res://resources/cards/hearts_K.tres<>uid://djpua61rp5u7f::::res://resources/cards/joker_black.tres<>uid://cbwduu6cfeo38::::res://resources/cards/joker_red.tres<>uid://doaivsbbchijc::::res://resources/cards/spades_8.tres<>uid://pbn270ttdu2x::::res://resources/cards/spades_A.tres<>uid://b538i57ra0ygm::::res://resources/cards/spades_J.tres<>uid://ij68fs8xcut6::::res://resources/cards/spades_K.tres<>uid://d0crwhov31gb6::::res://resources/cards/spades_Q.tres<>uid://df43lap81mn5e::::res://features/discard_pile/DiscardPile.tscn
 ::res://addons/::1791367903
 ::res://addons/awesome_custom_cursor/::1791284657
 awesome_custom_cursor.gd::GDScript::3362712905746617024::1791279356::0::1::::<>EditorPlugin<><>0<>1<><>::
@@ -453,8 +453,8 @@ spades_Q.png::CompressedTexture2D::3590420684406577483::1791442759::1791442759::
 ::res://core/data/::1791445387
 card_data.gd::GDScript::1707340016450259489::1791445387::0::1::::CardData<>Resource<><>0<>0<><>::
 ::res://core/manager/::1791446326
-card_manager.gd::GDScript::1197166809580838145::1791447834::0::1::::CardManager<>Node2D<><>0<>0<><>::
-::res://features/::1791366476
+card_manager.gd::GDScript::1197166809580838145::1791448086::0::1::::CardManager<>Node2D<><>0<>0<><>::
+::res://features/::1791447962
 ::res://features/card/::1791445378
 card.gd::GDScript::1022688910709831513::1791446940::0::1::::Card<>Area2D<><>0<>0<><>::
 Card.tscn::PackedScene::2349277094242813446::1791446912::0::1::::<><><>0<>0<><>::uid://otnsix826qpt::::res://features/card/card.gd<>uid://dvym4e042gpf4::::res://art/decks/classic/spades_A.png<>uid://bugpt7c560evd::::res://features/card/card_tilt.gdshader
@@ -464,11 +464,14 @@ CardSlot.tscn::PackedScene::6619234653025011867::1791363302::0::1::::<><><>0<>0<
 card_slot.gd::GDScript::6497282602530442460::1791445404::0::1::::CardSlot<>Area2D<><>0<>0<><>::
 card_slot.png::CompressedTexture2D::8679138619172648863::1791284663::1791355521::1::::<><><>0<>0<>661dfb8e87eb0dc5bd43e7d68e32f693<>res://.godot/imported/card_slot.png-51939a59108823a2b5ab214280443422.ctex::
 ::res://features/deck/::1791445409
-deck.gd::GDScript::474033372542723197::1791445409::0::1::::CardDeck<>Area2D<><>0<>0<><>::
+deck.gd::GDScript::474033372542723197::1791448031::0::1::::CardDeck<>Area2D<><>0<>0<><>::
 Deck.tscn::PackedScene::6913281396332296108::1791443279::0::1::::<><><>0<>0<><>::res://features/deck/deck.gd<>uid://bxfwgs0jw7bfv::::res://art/decks/backs/hd/lattice_blue.png
+::res://features/discard_pile/::1791448009
+DiscardPile.tscn::PackedScene::7571792968374281108::1791448009::0::1::::<><><>0<>0<><>::res://features/discard_pile/discard_pile.gd<>uid://cl7o7n123yuxl::::res://art/decks/backs/hd/lattice_red.png<>uid://dvwie6v4d56xv::::res://features/card_slot/card_slot.png
+discard_pile.gd::GDScript::9100092565914978633::1791447962::0::1::::DiscardPile<>Area2D<><>0<>0<><>::
 ::res://features/hand/::1791445392
-card_hand.gd::GDScript::8965387631222498174::1791447765::0::1::::CardHand<>Node2D<><>0<>0<><>::
-::res://movie/::1791314799
+card_hand.gd::GDScript::8965387631222498174::1791447952::0::1::::CardHand<>Node2D<><>0<>0<><>::
+::res://movie/::1791448173
 ::res://resources/::1791365323
 ::res://resources/cards/::1791445317
 clubs_2.tres::Resource/CardData::-1::1791443584::0::1::::<><><>0<>0<><>::res://core/data/card_data.gd<>uid://bftpvhnjsoioi::::res://art/decks/classic/clubs_2.png
@@ -526,4 +529,4 @@ spades_J.tres::Resource/CardData::4551908142967937184::1791445317::0::1::::<><><
 spades_K.tres::Resource/CardData::582031598818856341::1791445317::0::1::::<><><>0<>0<><>::uid://ylbv1te3m7b6::::res://core/data/card_data.gd<>uid://w1870vug3en6::::res://art/decks/classic/spades_K.png
 spades_Q.tres::Resource/CardData::8919183764164472969::1791445317::0::1::::<><><>0<>0<><>::uid://ylbv1te3m7b6::::res://core/data/card_data.gd<>uid://brfhx67fcadd0::::res://art/decks/classic/spades_Q.png
 ::res://tests/::1791367402
-test_card_system.gd::GDScript::3555639833788455241::1791447853::0::1::::<>SceneTree<><>0<>0<><>::
+test_card_system.gd::GDScript::3555639833788455241::1791448156::0::1::::<>SceneTree<><>0<>0<><>::

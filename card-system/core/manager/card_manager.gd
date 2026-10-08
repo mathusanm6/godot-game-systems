@@ -292,7 +292,9 @@ func _process_card_drag_motion() -> void:
 			if not is_from_slot or in_hand_zone:
 				if not card_hand.has_card(card_being_dragged):
 					if not card_hand.is_full:
-						var insert_idx: int = card_hand.get_insertion_index_for_position(card_being_dragged.global_position)
+						var insert_idx: int = card_hand.get_insertion_index_for_position(
+							card_being_dragged.global_position
+						)
 						card_hand.add_card(card_being_dragged, insert_idx, true)
 				else:
 					var target_idx: int = card_hand.get_insertion_index_for_position(
@@ -373,7 +375,9 @@ func _swap_cards(dragged_card: Card, target_slot: CardSlot) -> void:
 	else:
 		previous_card.card_slot = null
 		if card_hand:
-			var insert_idx: int = card_hand.get_insertion_index_for_position(dragged_card.global_position)
+			var insert_idx: int = card_hand.get_insertion_index_for_position(
+				dragged_card.global_position
+			)
 			card_hand.add_card(previous_card, insert_idx, true)
 		else:
 			previous_card.resting_z_index = 0

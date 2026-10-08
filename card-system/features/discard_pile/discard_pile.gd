@@ -103,10 +103,12 @@ func discard_card(card: Card, animate: bool = true) -> void:
 	if animate and is_inside_tree() and not Engine.is_editor_hint():
 		card.stop_drag()
 		card.z_index = 200
-		var tween := card.create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		var tween := card.create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(
+			Tween.EASE_OUT
+		)
 		tween.tween_property(card, "global_position", global_position, 0.22)
 		tween.tween_property(card, "rotation", 0.0, 0.22)
-		tween.tween_property(card, "scale", Vector2(0.65, 0.65), 0.22)
+		tween.tween_property(card, "scale", Vector2(1.15, 1.15), 0.22)
 		tween.chain().tween_callback(
 			func() -> void:
 				if is_instance_valid(card):
@@ -164,7 +166,9 @@ func set_highlight(on: bool) -> void:
 	if _hover_tween:
 		_hover_tween.kill()
 
-	_hover_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_hover_tween = create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(
+		Tween.EASE_OUT
+	)
 	var target_mod: Color = highlight_color if on else _base_modulate
 	var target_sc: Vector2 = _base_scale * (hover_scale if on or _is_hovered else 1.0)
 	_hover_tween.tween_property(self, "modulate", target_mod, hover_duration)
