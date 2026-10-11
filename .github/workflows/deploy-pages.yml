@@ -40,11 +40,10 @@ jobs:
             cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
           fi
 
-      - name: Create export directory and setup hub
+      - name: Create export directory
         run: |
           mkdir -v -p build/web/card-system
           mkdir -v -p build/web/chess-movement-system
-          cp index.html build/web/index.html
 
       - name: Export Web
         run: |
